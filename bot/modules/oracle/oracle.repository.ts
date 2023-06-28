@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify'
 import { ITransactionLogs } from 'oracle'
 import OracleModel from './models/oracle.pg'
-import { FindAttributeOptions } from 'sequelize'
+import { FindAttributeOptions, Order } from 'sequelize'
 
 @injectable()
 export default class OracleRepository {
@@ -20,9 +20,18 @@ export default class OracleRepository {
     return await this._oracleModel.TransactionLogEntityModel.bulkCreate(records)
   }
 
+  public async countTransactionLogsByConditions(params: {
+    conditions: { [key: string]: any } //
+  }) {
+    return await this._oracleModel.TransactionLogEntityModel.count({
+      where: params.conditions //
+    })
+  }
+
   public async findTransactionLogsByConditions(params: {
     conditions: { [key: string]: any } //
     projection?: FindAttributeOptions
+    sort?: Order
     limit?: number
     skip?: number
   }) {
@@ -30,6 +39,7 @@ export default class OracleRepository {
       where: params.conditions, //
       attributes: params.projection,
       limit: params.limit,
+      order: params.sort,
       offset: params.skip
     })
   }

@@ -10,4 +10,8 @@ declare module 'oracle-request' {
     params: any
     query: any
   }
+
+  export interface PaginateRequest {
+    paginate: { [key: string]: any }
+  }
 }

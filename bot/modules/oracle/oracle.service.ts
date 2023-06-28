@@ -7,6 +7,8 @@ import { inject, injectable } from 'inversify'
 import moment from 'moment'
 import OracleRepository from './oracle.repository'
 import { TransactionEvent } from '@config/constants'
+import { PaginateRequest } from 'oracle-request'
+import toPaginate from '@helpers/toPaginate'
 
 @injectable()
 export default class OracleService {
@@ -28,6 +30,20 @@ export default class OracleService {
     this._externalProvider = externalProvider
     this._notificationProvider = notificationProvider
     this._oracleRepository = oracleRepository
+  }
+
+  public async getTransactionLogs(params: PaginateRequest) {
+    const { paginate } = params
+    const offset = Math.max(paginate.page_index - 1, 0) * paginate.page_size
+
+    const conditions = {}
+    const { count, rows } = await this._oracleRepository.findTransactionLogsByConditions({
+      conditions, //
+      sort: [['created', 'DESC']],
+      skip: offset,
+      limit: paginate.page_size
+    })
+    return toPaginate(count, paginate.page_index, paginate.page_size, rows)
   }
 
   public async submitAssetPrice() {

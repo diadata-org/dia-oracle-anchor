@@ -6,7 +6,7 @@ import JobProvider from '@providers/job'
 import ExternalProvider from '@providers/external'
 import OracleService from '@modules/oracle/oracle.service'
 import AlephZeroProvider from '@providers/blockchain/aleph'
-import SiteController from '@modules/site/site.controller'
+import SiteRouter from '@modules/site/site.router'
 import OracleIndexer from '@modules/oracle/oracle.indexer'
 import SystemIndexer from '@modules/system/system.indexer'
 import SystemService from '@modules/system/system.service'
@@ -15,6 +15,8 @@ import LockProvider from '@providers/lock'
 import PostGresDatabase from './db/pg'
 import OracleModel from '@modules/oracle/models/oracle.pg'
 import OracleRepository from '@modules/oracle/oracle.repository'
+import OracleController from '@modules/oracle/oracle.controller'
+import OracleRouter from '@modules/oracle/oracle.router'
 
 export class IoCConfigLoader {
   static container = new Container()
@@ -43,11 +45,13 @@ export class IoCConfigLoader {
   }
 
   public static loadModules() {
-    this.container.bind<SiteController>(SiteController.name).to(SiteController).inSingletonScope()
+    this.container.bind<SiteRouter>(SiteRouter.name).to(SiteRouter).inSingletonScope()
 
     this.container.bind<OracleModel>(OracleModel.name).to(OracleModel).inSingletonScope()
     this.container.bind<OracleRepository>(OracleRepository.name).to(OracleRepository).inSingletonScope()
     this.container.bind<OracleService>(OracleService.name).to(OracleService).inSingletonScope()
+    this.container.bind<OracleController>(OracleController.name).to(OracleController).inSingletonScope()
+    this.container.bind<OracleRouter>(OracleRouter.name).to(OracleRouter).inSingletonScope()
     this.container.bind<OracleIndexer>(OracleIndexer.name).to(OracleIndexer).inSingletonScope()
 
     this.container.bind<SystemService>(SystemService.name).to(SystemService).inSingletonScope()

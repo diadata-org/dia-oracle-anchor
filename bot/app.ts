@@ -8,14 +8,19 @@ import { exceptionMiddleware } from '@core/middlewares/exception.middleware'
 import { requestMiddleware } from '@core/middlewares/request.middleware'
 import { CONFIG } from '@config'
 import { forEach } from 'lodash'
-import SiteController from '@modules/site/site.controller'
+import SiteRouter from '@modules/site/site.router'
 import { IoCConfigLoader } from './container'
+import OracleRouter from '@modules/oracle/oracle.router'
 
 class App {
   public app: express.Application
   constructor() {
     this.app = express()
-    IoCConfigLoader.load()
+    this.init()
+  }
+
+  private async init() {
+    await IoCConfigLoader.load()
 
     this.initMiddlewares()
     this.applyControllers()
@@ -49,9 +54,15 @@ class App {
   }
 
   private applyControllers() {
-    forEach([IoCConfigLoader.container.resolve<SiteController>(SiteController)], controller => {
-      this.app.use('/api/v1', controller.router)
-    })
+    forEach(
+      [
+        IoCConfigLoader.container.resolve<SiteRouter>(SiteRouter), //
+        IoCConfigLoader.container.resolve<OracleRouter>(OracleRouter)
+      ],
+      controller => {
+        this.app.use('/api/v1', controller.router)
+      }
+    )
   }
 }
 

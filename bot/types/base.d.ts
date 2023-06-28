@@ -8,7 +8,7 @@ declare module 'oracle-base' {
     modified?: Date
   }
 
-  export interface IController {
+  export interface IRouter {
     path: string
     router: Router
   }
