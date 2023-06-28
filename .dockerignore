@@ -1,0 +1,17 @@
+node_modules
+coverage
+coverage.json
+typechain
+typechain-types
+.idea
+.vscode
+
+#Hardhat files
+cache
+artifacts
+
+gateway.ldb
+conn.ldb
+dist
+
+target
