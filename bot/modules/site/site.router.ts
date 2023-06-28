@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express'
 import asyncHandler from '@helpers/asyncHandler'
-import { IController } from 'oracle-base'
+import { IRouter } from 'oracle-base'
 import { injectable } from 'inversify'
 
 @injectable()
-export default class SiteController implements IController {
+export default class SiteController implements IRouter {
   public path = '/sites'
   public router = Router()
 

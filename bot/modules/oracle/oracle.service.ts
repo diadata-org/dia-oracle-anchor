@@ -5,6 +5,10 @@ import ExternalProvider from '@providers/external'
 import NotificationProvider from '@providers/notification'
 import { inject, injectable } from 'inversify'
 import moment from 'moment'
+import OracleRepository from './oracle.repository'
+import { TransactionEvent } from '@config/constants'
+import { PaginateRequest } from 'oracle-request'
+import toPaginate from '@helpers/toPaginate'
 
 @injectable()
 export default class OracleService {
@@ -12,17 +16,34 @@ export default class OracleService {
   @inject(AlephZeroProvider.name) private _alephZeroProvider: AlephZeroProvider
   @inject(ExternalProvider.name) private _externalProvider: ExternalProvider
   @inject(NotificationProvider.name) private _notificationProvider: NotificationProvider
+  @inject(OracleRepository.name) private _oracleRepository: OracleRepository
 
   constructor(
     @inject(LLogger.name) logger: LLogger, //
     @inject(AlephZeroProvider.name) alephZeroProvider: AlephZeroProvider,
     @inject(ExternalProvider.name) externalProvider: ExternalProvider,
-    @inject(NotificationProvider.name) notificationProvider: NotificationProvider
+    @inject(NotificationProvider.name) notificationProvider: NotificationProvider,
+    @inject(OracleRepository.name) oracleRepository: OracleRepository
   ) {
     this._logger = logger
     this._alephZeroProvider = alephZeroProvider
     this._externalProvider = externalProvider
     this._notificationProvider = notificationProvider
+    this._oracleRepository = oracleRepository
+  }
+
+  public async getTransactionLogs(params: PaginateRequest) {
+    const { paginate } = params
+    const offset = Math.max(paginate.page_index - 1, 0) * paginate.page_size
+
+    const conditions = {}
+    const { count, rows } = await this._oracleRepository.findTransactionLogsByConditions({
+      conditions, //
+      sort: [['created', 'DESC']],
+      skip: offset,
+      limit: paginate.page_size
+    })
+    return toPaginate(count, paginate.page_index, paginate.page_size, rows)
   }
 
   public async submitAssetPrice() {
@@ -57,7 +78,13 @@ export default class OracleService {
 
       const txnHash = result.result?.toHuman()
 
-      // TODO_2: store txnHash to db
+      await this._oracleRepository.createTransactionLogs([
+        {
+          event: TransactionEvent.SetAssetPrice,
+          hash: txnHash
+        }
+      ])
+
       return {
         data: txnHash,
         error: null
