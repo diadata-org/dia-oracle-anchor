@@ -13,17 +13,27 @@ import SystemService from '@modules/system/system.service'
 import NotificationProvider from '@providers/notification'
 import LockProvider from '@providers/lock'
 import PostGresDatabase from './db/pg'
+import OracleModel from '@modules/oracle/models/oracle.pg'
+import OracleRepository from '@modules/oracle/oracle.repository'
 
 export class IoCConfigLoader {
   static container = new Container()
+
+  private static loadCommons() {
+    this.container.bind<LLogger>(LLogger.name).to(LLogger).inSingletonScope()
+  }
 
   private static loadDatabases() {
     this.container.bind<PostGresDatabase>(PostGresDatabase.name).to(PostGresDatabase).inSingletonScope()
   }
 
+  private static async initDataBases() {
+    const postGresDatabase = this.container.resolve<PostGresDatabase>(PostGresDatabase)
+    await postGresDatabase.validate()
+  }
+
   private static loadProviders() {
     // providers
-    this.container.bind<LLogger>(LLogger.name).to(LLogger).inSingletonScope()
     this.container.bind<AlephZeroProvider>(AlephZeroProvider.name).to(AlephZeroProvider).inSingletonScope()
     this.container.bind<ExternalProvider>(ExternalProvider.name).to(ExternalProvider).inSingletonScope()
     this.container.bind<RedisProvider>(RedisProvider.name).to(RedisProvider).inSingletonScope()
@@ -35,6 +45,8 @@ export class IoCConfigLoader {
   public static loadModules() {
     this.container.bind<SiteController>(SiteController.name).to(SiteController).inSingletonScope()
 
+    this.container.bind<OracleModel>(OracleModel.name).to(OracleModel).inSingletonScope()
+    this.container.bind<OracleRepository>(OracleRepository.name).to(OracleRepository).inSingletonScope()
     this.container.bind<OracleService>(OracleService.name).to(OracleService).inSingletonScope()
     this.container.bind<OracleIndexer>(OracleIndexer.name).to(OracleIndexer).inSingletonScope()
 
@@ -60,11 +72,13 @@ export class IoCConfigLoader {
     this.registerQueues()
   }
 
-  public static load() {
+  public static async load() {
     this.container = new Container({
       defaultScope: 'Singleton'
     })
+    this.loadCommons()
     this.loadDatabases()
+    await this.initDataBases()
     this.loadProviders()
 
     // v3

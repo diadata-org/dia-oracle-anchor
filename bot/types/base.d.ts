@@ -2,7 +2,8 @@ declare module 'oracle-base' {
   import { ChainSupported } from '@config/constants'
   import { Router } from 'express'
   export interface IBaseModel {
-    removed?: Boolean
+    id: number
+    removed?: Date
     created?: Date
     modified?: Date
   }
@@ -45,9 +46,10 @@ declare module 'oracle-base' {
     }
 
     POSTGRESQL: {
-      URL: string
+      URI_CONNECTION: string
+      DATABASE: string
       TABLES: {
-        LOGS: string
+        TRANSACTION_LOGS: string
       }
     }
 

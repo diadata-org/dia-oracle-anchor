@@ -10,7 +10,7 @@ import { injectable } from 'inversify'
 @injectable()
 export default class AlephZeroProvider {
   public getHttpProvider() {
-    const rpcUrl = CONFIG.CHAINS?.[ChainSupported.ALEPH_ZERO]?.PROVIDER
+    const rpcUrl = CONFIG.CHAINS?.[ChainSupported.AlephZero]?.PROVIDER
     if (!rpcUrl) {
       throw new Error('Application Error:::::Chain not supported')
     }
