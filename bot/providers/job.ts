@@ -1,17 +1,17 @@
 import { injectable, inject } from 'inversify'
-import RedisProvider from './redis'
 import LLogger from '@core/Logger'
+import LockProvider from './lock'
 
 @injectable()
 export default class JobProvider {
-  @inject(RedisProvider.name) private _redisProvider: RedisProvider
+  @inject(LockProvider.name) private _lockProvider: LockProvider
   @inject(LLogger.name) private _logger: LLogger
 
   constructor(
-    @inject(RedisProvider.name) redisProvider: RedisProvider, //
+    @inject(LockProvider.name) lockProvider: LockProvider, //
     @inject(LLogger.name) logger: LLogger
   ) {
-    this._redisProvider = redisProvider
+    this._lockProvider = lockProvider
     this._logger = logger
   }
 
@@ -25,11 +25,11 @@ export default class JobProvider {
     process: any
   ) {
     const lockKey = `${job.parent}:${job.id}`
-    const lockValue = await this._redisProvider.get(lockKey)
+    const lockValue = await this._lockProvider.get(lockKey)
     if (lockValue) {
       return
     }
-    await this._redisProvider.setEX(lockKey, '1', job.ttl ?? 30)
+    await this._lockProvider.setEX(lockKey, '1', job.ttl ?? 30)
     const events: string[] = []
     events.push(`Working on job ${job.id}: ${new Date()}`)
     try {
@@ -38,7 +38,7 @@ export default class JobProvider {
     } catch (err: any) {
       events.push(`Error: ${err} - ${err?.stack}`)
     } finally {
-      await this._redisProvider.del(lockKey)
+      await this._lockProvider.del(lockKey)
     }
     events.push(`Done job ${job.id}: ${new Date()}`)
     this._logger.info(events.join(':::::'))

@@ -32,10 +32,10 @@ export const ENV_CONFIG: IConfigs = {
   },
 
   EMAIL_NOTIFICATION: {
-    ENABLE_REPORT_TO_ADMIN: String(process.env.EMAIL_NOTIFICATION_ENABLE_REPORT_TO_ADMIN || 'enabled'), // enabled | disabled
-    FROM_ADDRESS: 'tech@pellartech.com',
-    TO_ADDRESS: 'tech@pellartech.com',
-    SEND_GRID_API_KEY: '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'
+    ENABLE_REPORT_TO_ADMIN: String(process.env.EMAIL_NOTIFICATION_ENABLE_REPORT_TO_ADMIN || 'disabled'), // enabled | disabled
+    FROM_ADDRESS: String(process.env.EMAIL_NOTIFICATION_FROM_ADDRESS),
+    TO_ADDRESS: String(process.env.EMAIL_NOTIFICATION_TO_ADDRESS),
+    SEND_GRID_API_KEY: String(process.env.EMAIL_NOTIFICATION_SEND_GRID_API_KEY)
   },
 
   REDIS: {

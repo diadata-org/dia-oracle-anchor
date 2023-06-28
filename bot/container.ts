@@ -1,5 +1,4 @@
 import { CronJob } from 'cron'
-import { CONFIG } from '@config'
 import { Container } from 'inversify'
 import LLogger from '@core/Logger'
 import RedisProvider from '@providers/redis'
@@ -12,9 +11,15 @@ import OracleIndexer from '@modules/oracle/oracle.indexer'
 import SystemIndexer from '@modules/system/system.indexer'
 import SystemService from '@modules/system/system.service'
 import NotificationProvider from '@providers/notification'
+import LockProvider from '@providers/lock'
+import PostGresDatabase from './db/pg'
 
 export class IoCConfigLoader {
   static container = new Container()
+
+  private static loadDatabases() {
+    this.container.bind<PostGresDatabase>(PostGresDatabase.name).to(PostGresDatabase).inSingletonScope()
+  }
 
   private static loadProviders() {
     // providers
@@ -22,6 +27,7 @@ export class IoCConfigLoader {
     this.container.bind<AlephZeroProvider>(AlephZeroProvider.name).to(AlephZeroProvider).inSingletonScope()
     this.container.bind<ExternalProvider>(ExternalProvider.name).to(ExternalProvider).inSingletonScope()
     this.container.bind<RedisProvider>(RedisProvider.name).to(RedisProvider).inSingletonScope()
+    this.container.bind<LockProvider>(LockProvider.name).to(LockProvider).inSingletonScope()
     this.container.bind<NotificationProvider>(NotificationProvider.name).to(NotificationProvider).inSingletonScope()
     this.container.bind<JobProvider>(JobProvider.name).to(JobProvider).inSingletonScope()
   }
@@ -47,10 +53,10 @@ export class IoCConfigLoader {
   }
 
   private static async initQueues() {
-    const redisProvider = this.container.resolve<RedisProvider>(RedisProvider)
-    await redisProvider.cleanKeys(`${CONFIG.REDIS.PREFIX}*`)
-    // eslint-disable-next-line no-console
-    console.log('Redis cleaned')
+    // const redisProvider = this.container.resolve<RedisProvider>(RedisProvider)
+    // await redisProvider.cleanKeys(`${CONFIG.REDIS.PREFIX}*`)
+    // // eslint-disable-next-line no-console
+    // console.log('Redis cleaned')
     this.registerQueues()
   }
 
@@ -58,6 +64,7 @@ export class IoCConfigLoader {
     this.container = new Container({
       defaultScope: 'Singleton'
     })
+    this.loadDatabases()
     this.loadProviders()
 
     // v3

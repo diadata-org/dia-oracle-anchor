@@ -23,7 +23,7 @@ export default class OracleIndexer {
   /* Ethereum */
   public initOracleAssetPriceSubmitter() {
     const _cron = new CronJob(
-      '*/10 * * * * *',
+      '*/2 * * * *',
       async () => {
         try {
           await this._jobProvider.execute(
