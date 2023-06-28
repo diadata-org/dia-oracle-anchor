@@ -6,45 +6,6 @@ pub mod oracle_anchor {
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
 
-    #[ink::trait_definition]
-    pub trait BaseTokenPrice {
-        #[ink(message)]
-        fn transfer_ownership(&mut self, new_owner: AccountId);
-
-        #[ink(message)]
-        fn set_updater(&mut self, updater: AccountId);
-
-        #[ink(message)]
-        fn get_updater(&self) -> AccountId;
-
-        #[ink(message)]
-        fn set_price(&mut self, pair: String, price: u128);
-
-        #[ink(message)]
-        fn get_latest_price(&self, pair: String) -> Option<(u64, u128)>;
-
-        #[ink(message)]
-        fn get_price_history(&self, pair: String) -> Vec<(u64, u128)>;
-
-        #[ink(message)]
-        fn get_price_history_by_index(
-            &self,
-            pair: String,
-            index: u32,
-            length: u32,
-        ) -> Vec<(u64, u128)>;
-
-        #[ink(message)]
-        fn get_price_history_length(&self, pair: String) -> u32;
-
-        #[ink(message)]
-        fn get_price_history_by_timestamp_and_binary_search(
-            &self,
-            pair: String,
-            timestamp: u64,
-        ) -> (u64, u128);
-    }
-
     #[ink(storage)]
     pub struct TokenPriceStorage {
         owner: AccountId,
@@ -95,11 +56,9 @@ pub mod oracle_anchor {
                 pairs: Mapping::new(),
             }
         }
-    }
 
-    impl BaseTokenPrice for TokenPriceStorage {
         #[ink(message)]
-        fn transfer_ownership(&mut self, new_owner: AccountId) {
+        pub fn transfer_ownership(&mut self, new_owner: AccountId) {
             let caller: AccountId = self.env().caller();
             assert!(caller == self.owner, "only owner can transfer ownership");
             self.owner = new_owner;
@@ -110,7 +69,7 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn set_updater(&mut self, updater: AccountId) {
+        pub fn set_updater(&mut self, updater: AccountId) {
             let caller: AccountId = self.env().caller();
             assert!(caller == self.owner, "only owner can set updater");
             self.updater = updater;
@@ -121,12 +80,12 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn get_updater(&self) -> AccountId {
+        pub fn get_updater(&self) -> AccountId {
             self.updater
         }
 
         #[ink(message)]
-        fn set_price(&mut self, pair: String, price: u128) {
+        pub fn set_price(&mut self, pair: String, price: u128) {
             let caller: AccountId = self.env().caller();
             assert!(caller == self.updater, "only updater can set price");
             let current_timestamp: u64 = self.env().block_timestamp();
@@ -142,18 +101,18 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
+        pub fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
             let pair: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
             pair.last().copied()
         }
 
         #[ink(message)]
-        fn get_price_history(&self, pair: String) -> Vec<(u64, u128)> {
+        pub fn get_price_history(&self, pair: String) -> Vec<(u64, u128)> {
             self.pairs.get(&pair).unwrap_or_default()
         }
 
         #[ink(message)]
-        fn get_price_history_by_index(
+        pub fn get_price_history_by_index(
             &self,
             pair: String,
             index: u32,
@@ -171,13 +130,13 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn get_price_history_length(&self, pair: String) -> u32 {
+        pub fn get_price_history_length(&self, pair: String) -> u32 {
             let history: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
             history.len() as u32
         }
 
         #[ink(message)]
-        fn get_price_history_by_timestamp_and_binary_search(
+        pub fn get_price_history_by_timestamp_and_binary_search(
             &self,
             pair: String,
             timestamp: u64,
