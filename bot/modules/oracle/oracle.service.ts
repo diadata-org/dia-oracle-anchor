@@ -37,26 +37,28 @@ export default class OracleService {
     const offset = Math.max(paginate.page_index - 1, 0) * paginate.page_size
 
     const conditions = {}
-    const { count, rows } = await this._oracleRepository.findTransactionLogsByConditions({
+    const count = await this._oracleRepository.countTransactionLogsByConditions({ conditions })
+    const items = await this._oracleRepository.findTransactionLogsByConditions({
       conditions, //
-      sort: [['created', 'DESC']],
+      sorts: [{ created: 'desc' }],
       skip: offset,
       limit: paginate.page_size
     })
-    return toPaginate(count, paginate.page_index, paginate.page_size, rows)
+    return toPaginate(count, paginate.page_index, paginate.page_size, items)
   }
 
-  public async submitAssetPrice() {
+  public async checkIfNeedToSubmitAsset(chain: string, tokenAddress: string) {
     try {
+      this._logger.info(`Check deviation permille asset price: ${chain}-${tokenAddress}`)
+      const deviationPermille = Number(CONFIG.MODULES.ORACLE.DEVIATION_PERMILLE) / 100
       const configs = CONFIG.MODULES.ORACLE.CONTRACTS.ALEPH_ZERO.ASSET_PRICE_ANCHOR
       const api = await this._alephZeroProvider.getHttpApi()
       const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
 
       const { error, data: tokenPrice } = await this._externalProvider.getAssetPrice(
         {
-          // TODO_2: using vars
-          chain: 'Bitcoin',
-          token_address: '0x0000000000000000000000000000000000000000'
+          chain: chain,
+          token_address: tokenAddress
         },
         {
           timestamp: moment.utc().unix()
@@ -64,7 +66,54 @@ export default class OracleService {
       )
 
       if (error) {
-        throw new Error(`Error while getting asset price: ${error}`)
+        throw new Error(`Error while getting asset price: ${JSON.stringify(error)}`)
+      }
+
+      const latestTokenPrice = await this._alephZeroProvider.contractQuery(api, contract.address.toHex(), contract, 'getLatestPrice', {}, [
+        `${tokenPrice.Symbol}/USD`
+      ])
+
+      const price = Number((latestTokenPrice.output?.toJSON() as any)?.ok?.[1])
+
+      const currentPrice = Number(tokenPrice.Price)
+
+      if ((currentPrice - price) / price >= deviationPermille) {
+        return await this.submitAssetPrice(chain, tokenAddress)
+      }
+    } catch (err) {
+      this._logger.error(`Can not check asset price: ${String(err)}`)
+
+      this._notificationProvider.sendTaskRunFailed({
+        error: String(err),
+        task_name: 'checkIfNeedToSubmitAsset'
+      })
+
+      return {
+        data: null,
+        error: err
+      }
+    }
+  }
+
+  public async submitAssetPrice(chain: string, tokenAddress: string) {
+    try {
+      this._logger.info(`Submit asset price: ${chain}-${tokenAddress}`)
+      const configs = CONFIG.MODULES.ORACLE.CONTRACTS.ALEPH_ZERO.ASSET_PRICE_ANCHOR
+      const api = await this._alephZeroProvider.getHttpApi()
+      const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
+
+      const { error, data: tokenPrice } = await this._externalProvider.getAssetPrice(
+        {
+          chain: chain,
+          token_address: tokenAddress
+        },
+        {
+          timestamp: moment.utc().unix()
+        }
+      )
+
+      if (error) {
+        throw new Error(`Error while getting asset price: ${JSON.stringify(error)}`)
       }
 
       const result = await this._alephZeroProvider.contractTx(
@@ -76,12 +125,23 @@ export default class OracleService {
         [`${tokenPrice.Symbol}/USD`, Math.floor(tokenPrice.Price)]
       )
 
-      const txnHash = result.result?.toHuman()
+      const txnHash = result.result?.toHex()
+
+      const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
 
       await this._oracleRepository.createTransactionLogs([
         {
+          note: `Submit asset price: ${tokenPrice.Symbol}/USD = ${tokenPrice.Price}`,
           event: TransactionEvent.SetAssetPrice,
-          hash: txnHash
+          hash: txnHash,
+          block_number: res.block?.block_number,
+          block_hash: res.block?.block_hash,
+          nonce: res.txn?.nonce,
+          from: res.txn?.signer,
+          to: res.txn.dest,
+          value: res.txn?.value,
+          data: res.txn?.data,
+          status: res.status
         }
       ])
 

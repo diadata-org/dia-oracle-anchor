@@ -1,11 +1,12 @@
 import { CONFIG } from '@config'
-import { ChainSupported } from '@config/constants'
+import { ChainSupported, TransactionStatus } from '@config/constants'
 import { ApiPromise, HttpProvider, Keyring } from '@polkadot/api'
 import { ContractPromise } from '@polkadot/api-contract'
 import { ContractCallOutcome, ContractOptions } from '@polkadot/api-contract/types'
 import type { WeightV2 } from '@polkadot/types/interfaces'
 import { BN, bnToBn, stringCamelCase } from '@polkadot/util'
 import { injectable } from 'inversify'
+import { find } from 'lodash'
 
 @injectable()
 export default class AlephZeroProvider {
@@ -155,12 +156,7 @@ export default class AlephZeroProvider {
     method: string,
     options = {} as ContractOptions,
     args = [] as unknown[]
-  ): Promise<{
-    dryResult: ContractCallOutcome
-    result?: any
-    errorMessage?: string | 'UserCancelled' | 'ExtrinsicFailed' | 'Error'
-    errorEvent?: any
-  }> {
+  ) {
     // Dry run to determine required gas and potential errors
     delete options.gasLimit
     const dryResult = await this.contractCallDryRun(api, account, contract, method, options, args)
@@ -177,10 +173,55 @@ export default class AlephZeroProvider {
     // Call actual query/tx & wrap it in a promise
     const gasLimit = dryResult.gasRequired
     const tx = contract.tx[stringCamelCase(method)]({ ...options, gasLimit }, ...args)
+    const currentBlock = await api.rpc.chain.getBlock()
     const result = await tx.signAndSend(account)
+
     return {
+      currentBlock,
       dryResult,
       result
+    }
+  }
+
+  public async waitTx(api: ApiPromise, txHash: string, startBlockNumber: number) {
+    const latestBlock = await api.rpc.chain.getBlock()
+
+    const latestBlockNumber = latestBlock.block.header.number.toNumber()
+
+    // check within 30 blocks
+    for (let i = startBlockNumber; i < latestBlockNumber + 30; i++) {
+      const blockHash = await api.rpc.chain.getBlockHash(i)
+      if (blockHash.toHex() === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        break
+      }
+      const block = await api.rpc.chain.getBlock(blockHash)
+      const txn = find(block.block.extrinsics, e => e.hash.toHex() === txHash)
+      if (txn) {
+        const readableTxn = txn.toHuman() as any
+        return {
+          block: {
+            block_number: i,
+            block_hash: blockHash.toHex()
+          },
+          txn: {
+            nonce: Number(readableTxn?.nonce),
+            hash: txHash,
+            signer: readableTxn?.signer?.Id,
+            data: readableTxn.method.args?.data,
+            value: readableTxn.method.args?.value,
+            dest: readableTxn.method.args?.dest?.Id
+          },
+          status: TransactionStatus.Success
+        }
+      }
+    }
+
+    return {
+      block: {},
+      txn: {
+        hash: txHash
+      },
+      status: TransactionStatus.Untracked
     }
   }
 }

@@ -28,7 +28,7 @@ export const ENV_CONFIG: IConfigs = {
 
   CHAINS: {
     [ChainSupported.AlephZero]: {
-      PROVIDER: String(process.env.ALEPH_ZERO_PROVIDER || 'https://rpc.test.azero.dev')
+      PROVIDER: String(process.env.BLOCKCHAIN_NODE || 'https://rpc.test.azero.dev')
     }
   },
 
@@ -47,15 +47,19 @@ export const ENV_CONFIG: IConfigs = {
 
   MODULES: {
     ORACLE: {
-      UPDATER_PRIVATE_KEY: String(process.env.MODULES_ORACLE_UPDATER_PRIVATE_KEY),
+      FREQUENCY_SECONDS: Number(process.env.FREQUENCY_SECONDS || 120),
+      SLEEP_SECONDS: Number(process.env.SLEEP_SECONDS || 120),
+      DEVIATION_PERMILLE: Number(process.env.DEVIATION_PERMILLE || 10),
+      UPDATER_PRIVATE_KEY: String(process.env.PRIVATE_KEY),
       CONTRACTS: {
         ALEPH_ZERO: {
           ASSET_PRICE_ANCHOR: {
-            ADDRESS: String(process.env.MODULES_ORACLE_CONTRACTS_ALEPH_ZERO_ASSET_PRICE_ANCHOR_ADDRESS),
+            ADDRESS: String(process.env.DEPLOYED_CONTRACT),
             ABI: ASSET_PRICE_ANCHOR_ABI
           }
         }
-      }
+      },
+      ASSETS: String(process.env.ASSETS)
     },
 
     EXTERNAL: {
