@@ -54,7 +54,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.0",
-    "ethers": "^5.6.2",
+    "ethers": "^5.7.2",
     "express": "^4.17.3",
     "helmet": "^5.0.2",
     "hmac-auth-express": "^8.3.2",
@@ -67,7 +67,6 @@
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "pg": "^8.11.1",
-    "prisma": "^4.16.1",
     "randomstring": "^1.2.2",
     "redis": "^4.6.4",
     "reflect-metadata": "^0.1.13",
@@ -94,6 +93,7 @@
     "lint-staged": "^12.1.2",
     "nodemon": "^2.0.15",
     "prettier": "^2.6.2",
+    "prisma": "^4.16.1",
     "sequelize-cli": "^6.6.1"
   },
   "lint-staged": {
@@ -121,6 +121,6 @@
     "spec": "bot/**/*.{spec,test}.ts"
   },
   "engines": {
-    "node": ">=14.19.0 <17"
+    "node": ">=14.19.0"
   }
 }

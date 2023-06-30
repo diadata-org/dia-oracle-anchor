@@ -58,6 +58,11 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
+        pub fn get_precision(&mut self) -> u128 {
+            return 1_000_000_000_000_000_000;
+        }
+
+        #[ink(message)]
         pub fn transfer_ownership(&mut self, new_owner: AccountId) {
             let caller: AccountId = self.env().caller();
             assert!(caller == self.owner, "only owner can transfer ownership");
