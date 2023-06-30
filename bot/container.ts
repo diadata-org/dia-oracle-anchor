@@ -1,4 +1,3 @@
-import { CronJob } from 'cron'
 import { Container } from 'inversify'
 import LLogger from '@core/Logger'
 import RedisProvider from '@providers/redis'
@@ -8,11 +7,9 @@ import OracleService from '@modules/oracle/oracle.service'
 import AlephZeroProvider from '@providers/blockchain/aleph'
 import SiteRouter from '@modules/site/site.router'
 import OracleIndexer from '@modules/oracle/oracle.indexer'
-import SystemIndexer from '@modules/system/system.indexer'
-import SystemService from '@modules/system/system.service'
 import NotificationProvider from '@providers/notification'
 import LockProvider from '@providers/lock'
-import PostGresDatabase from './db/pg'
+import DatabaseClient from './db/pg'
 import OracleModel from '@modules/oracle/models/oracle.pg'
 import OracleRepository from '@modules/oracle/oracle.repository'
 import OracleController from '@modules/oracle/oracle.controller'
@@ -26,12 +23,7 @@ export class IoCConfigLoader {
   }
 
   private static loadDatabases() {
-    this.container.bind<PostGresDatabase>(PostGresDatabase.name).to(PostGresDatabase).inSingletonScope()
-  }
-
-  private static async initDataBases() {
-    const postGresDatabase = this.container.resolve<PostGresDatabase>(PostGresDatabase)
-    await postGresDatabase.validate()
+    this.container.bind<DatabaseClient>(DatabaseClient.name).to(DatabaseClient).inSingletonScope()
   }
 
   private static loadProviders() {
@@ -53,36 +45,24 @@ export class IoCConfigLoader {
     this.container.bind<OracleController>(OracleController.name).to(OracleController).inSingletonScope()
     this.container.bind<OracleRouter>(OracleRouter.name).to(OracleRouter).inSingletonScope()
     this.container.bind<OracleIndexer>(OracleIndexer.name).to(OracleIndexer).inSingletonScope()
-
-    this.container.bind<SystemService>(SystemService.name).to(SystemService).inSingletonScope()
-    this.container.bind<SystemIndexer>(SystemIndexer.name).to(SystemIndexer).inSingletonScope()
   }
 
   private static registerQueues() {
-    const systemIndexer = this.container.resolve<SystemIndexer>(SystemIndexer)
     const oracleIndexer = this.container.resolve<OracleIndexer>(OracleIndexer)
-    const crons: CronJob[] = []
-    crons.push(
-      oracleIndexer.initOracleAssetPriceSubmitter() //
-    )
-    systemIndexer.initJobsPingingQueue(crons)
+    oracleIndexer.initOracleAssetPriceSubmitter()
+    oracleIndexer.initOracleAssetPriceChecker()
   }
 
   private static async initQueues() {
-    // const redisProvider = this.container.resolve<RedisProvider>(RedisProvider)
-    // await redisProvider.cleanKeys(`${CONFIG.REDIS.PREFIX}*`)
-    // // eslint-disable-next-line no-console
-    // console.log('Redis cleaned')
     this.registerQueues()
   }
 
-  public static async load() {
+  public static load() {
     this.container = new Container({
       defaultScope: 'Singleton'
     })
     this.loadCommons()
     this.loadDatabases()
-    await this.initDataBases()
     this.loadProviders()
 
     // v3

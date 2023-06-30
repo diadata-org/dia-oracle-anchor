@@ -1,6 +1,8 @@
 declare module 'oracle-base' {
   import { ChainSupported } from '@config/constants'
   import { Router } from 'express'
+
+  export type SortOrder = 'asc' | 'desc'
   export interface IBaseModel {
     id: number
     removed?: Date
@@ -74,6 +76,9 @@ declare module 'oracle-base' {
 
     MODULES: {
       ORACLE: {
+        FREQUENCY_SECONDS: number
+        SLEEP_SECONDS: number
+        DEVIATION_PERMILLE: number
         UPDATER_PRIVATE_KEY: string
         CONTRACTS: {
           ALEPH_ZERO: {
@@ -83,6 +88,7 @@ declare module 'oracle-base' {
             }
           }
         }
+        ASSETS: string
       }
 
       EXTERNAL: {

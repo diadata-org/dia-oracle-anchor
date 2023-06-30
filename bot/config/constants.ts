@@ -8,6 +8,13 @@ export enum TransactionEvent {
   SetAssetPrice = 'SetAssetPrice'
 }
 
+export enum TransactionStatus {
+  Pending = 'Pending',
+  Success = 'Success',
+  Failed = 'Failed',
+  Untracked = 'Untracked'
+}
+
 export const CONSTANTS = {
   STATUS_CODES
 }

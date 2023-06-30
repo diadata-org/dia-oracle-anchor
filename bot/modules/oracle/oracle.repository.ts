@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify'
 import { ITransactionLogs } from 'oracle'
 import OracleModel from './models/oracle.pg'
-import { FindAttributeOptions, Order } from 'sequelize'
+import { SortOrder } from 'oracle-base'
 
 @injectable()
 export default class OracleRepository {
@@ -14,10 +14,22 @@ export default class OracleRepository {
   public async createTransactionLogs(
     records: Pick<
       ITransactionLogs,
-      'event' | 'hash' //
+      | 'note'
+      | 'event' //
+      | 'block_number'
+      | 'block_hash'
+      | 'hash'
+      | 'nonce'
+      | 'from'
+      | 'to'
+      | 'value'
+      | 'data'
+      | 'status'
     >[]
   ) {
-    return await this._oracleModel.TransactionLogEntityModel.bulkCreate(records)
+    return await this._oracleModel.TransactionLogEntityModel.createMany({
+      data: records //
+    })
   }
 
   public async countTransactionLogsByConditions(params: {
@@ -30,27 +42,27 @@ export default class OracleRepository {
 
   public async findTransactionLogsByConditions(params: {
     conditions: { [key: string]: any } //
-    projection?: FindAttributeOptions
-    sort?: Order
+    projection?: { [key in keyof ITransactionLogs]?: boolean }
+    sorts?: { [key in keyof ITransactionLogs]?: SortOrder }[]
     limit?: number
     skip?: number
   }) {
-    return await this._oracleModel.TransactionLogEntityModel.findAndCountAll({
+    return await this._oracleModel.TransactionLogEntityModel.findMany({
       where: params.conditions, //
-      attributes: params.projection,
-      limit: params.limit,
-      order: params.sort,
-      offset: params.skip
+      select: params.projection,
+      take: params.limit,
+      orderBy: params.sorts,
+      skip: params.skip
     })
   }
 
   public async findOneByConditions(params: {
     conditions: { [key: string]: any } //
-    projection?: FindAttributeOptions
+    projection?: { [key in keyof ITransactionLogs]?: boolean }
   }) {
-    return await this._oracleModel.TransactionLogEntityModel.findOne({
+    return await this._oracleModel.TransactionLogEntityModel.findFirst({
       where: params.conditions, //
-      attributes: params.projection
+      select: params.projection
     })
   }
 }
