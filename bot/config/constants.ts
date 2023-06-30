@@ -15,6 +15,8 @@ export enum TransactionStatus {
   Untracked = 'Untracked'
 }
 
+export const PRECISION_DECIMALS = 18
+
 export const CONSTANTS = {
   STATUS_CODES
 }

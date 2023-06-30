@@ -7,6 +7,7 @@ import type { WeightV2 } from '@polkadot/types/interfaces'
 import { BN, bnToBn, stringCamelCase } from '@polkadot/util'
 import { injectable } from 'inversify'
 import { find } from 'lodash'
+import { ethers } from 'ethers'
 
 @injectable()
 export default class AlephZeroProvider {
@@ -48,6 +49,14 @@ export default class AlephZeroProvider {
       refTime,
       proofSize
     })
+  }
+
+  public parseFromIntToFloat(num: string, unit: number) {
+    return ethers.utils.formatUnits(num, unit)
+  }
+
+  public parseFromFloatToInt(num: string, unit: number) {
+    return ethers.utils.parseUnits(num, unit).toString()
   }
 
   /**

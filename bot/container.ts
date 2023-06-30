@@ -49,7 +49,7 @@ export class IoCConfigLoader {
 
   private static registerQueues() {
     const oracleIndexer = this.container.resolve<OracleIndexer>(OracleIndexer)
-    oracleIndexer.initOracleAssetPriceSubmitter()
+    // oracleIndexer.initOracleAssetPriceSubmitter()
     oracleIndexer.initOracleAssetPriceChecker()
   }
 

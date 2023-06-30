@@ -1,16 +1,20 @@
-FROM node:14-alpine AS builder
+FROM node:18 AS builder
 
 WORKDIR /usr/src/app
 
-COPY package*.json tsconfig.json ./
+COPY package*.json tsconfig.json .env ./
+COPY prisma ./prisma/
 
-RUN npm ci
+RUN npm install
+
+RUN npx prisma generate
+RUN npx prisma migrate deploy
 
 COPY . .
 
 RUN npm run build
 
-FROM node:14-alpine
+FROM node:18
 
 ENV NODE_ENV production
 WORKDIR /usr/src/app

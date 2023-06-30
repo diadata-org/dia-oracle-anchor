@@ -6,7 +6,7 @@ import NotificationProvider from '@providers/notification'
 import { inject, injectable } from 'inversify'
 import moment from 'moment'
 import OracleRepository from './oracle.repository'
-import { TransactionEvent } from '@config/constants'
+import { PRECISION_DECIMALS, TransactionEvent } from '@config/constants'
 import { PaginateRequest } from 'oracle-request'
 import toPaginate from '@helpers/toPaginate'
 
@@ -73,7 +73,9 @@ export default class OracleService {
         `${tokenPrice.Symbol}/USD`
       ])
 
-      const price = Number((latestTokenPrice.output?.toJSON() as any)?.ok?.[1])
+      const price = Number(
+        this._alephZeroProvider.parseFromIntToFloat(String((latestTokenPrice.output?.toJSON() as any)?.ok?.[1]), PRECISION_DECIMALS)
+      )
 
       const currentPrice = Number(tokenPrice.Price)
 
@@ -122,7 +124,7 @@ export default class OracleService {
         contract,
         'setPrice',
         {},
-        [`${tokenPrice.Symbol}/USD`, Math.floor(tokenPrice.Price)]
+        [`${tokenPrice.Symbol}/USD`, this._alephZeroProvider.parseFromFloatToInt(String(tokenPrice.Price), PRECISION_DECIMALS)]
       )
 
       const txnHash = result.result?.toHex()
