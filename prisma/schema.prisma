@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TransactionLog {
+  id           Int    @id @default(autoincrement())
+  note         String?
+  event        String
+  block_number Int?
+  block_hash   String?
+  hash         String
+  nonce        Int?
+  from         String?
+  to           String?
+  value        String?
+  data         String?
+  status       String?
+  created      DateTime @default(now())
+  modified     DateTime @default(now())
+  removed      DateTime?
+
+  @@map("transaction_logs")
+}

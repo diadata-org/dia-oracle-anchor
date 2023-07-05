@@ -1,0 +1,126 @@
+{
+  "name": "oracle",
+  "version": "1.0.0",
+  "description": "Oracle for DIA",
+  "main": "./dist/server.js",
+  "scripts": {
+    "test:init": "jest --init",
+    "build": "rm -rf dist && npx tsc -p . && npx tsc-alias && cp -r bot/templates/ dist/templates/",
+    "start": "npm run build && NODE_ENV=production node dist/server.js",
+    "dev": "nodemon bot/server.ts",
+    "prepare": "npx husky install",
+    "lint": "eslint ./bot --ext .js,.ts --fix",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pellartech/dia-oracle-anchor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pellartech/dia-oracle-anchor/issues"
+  },
+  "homepage": "https://github.com/pellartech/dia-oracle-anchor#readme",
+  "dependencies": {
+    "@polkadot/api": "^10.9.1",
+    "@polkadot/api-contract": "^10.9.1",
+    "@polkadot/util": "^12.3.2",
+    "@prisma/client": "^4.16.1",
+    "@sendgrid/mail": "^7.7.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/cors": "^2.8.12",
+    "@types/crypto-js": "^4.1.1",
+    "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/lodash": "^4.14.181",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^18.7.3",
+    "@types/passport": "^1.0.7",
+    "@types/passport-jwt": "^3.0.6",
+    "@types/pg": "^8.10.2",
+    "@types/randomstring": "^1.1.8",
+    "@types/sharp": "^0.30.2",
+    "@types/sinon": "^10.0.11",
+    "@types/swig-email-templates": "^7.0.0",
+    "@types/uuid": "^8.3.4",
+    "aws-sdk": "^2.1118.0",
+    "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.7.2",
+    "express": "^4.17.3",
+    "helmet": "^5.0.2",
+    "hmac-auth-express": "^8.3.2",
+    "inversify": "^6.0.1",
+    "json2csv": "^5.0.7",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "multer": "^1.4.5-lts.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
+    "pg": "^8.11.1",
+    "randomstring": "^1.2.2",
+    "redis": "^4.6.4",
+    "reflect-metadata": "^0.1.13",
+    "sharp": "^0.30.4",
+    "sinon": "^14.0.0",
+    "source-map-support": "^0.5.21",
+    "speakeasy": "^2.0.0",
+    "swig-email-templates": "^7.0.0",
+    "ts-node": "^10.7.0",
+    "tsc-alias": "^1.6.6",
+    "tsconfig-paths": "^4.1.0",
+    "typescript": "^4.6.3",
+    "winston": "^3.8.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.2",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.6.2",
+    "prisma": "^4.16.1",
+    "sequelize-cli": "^6.6.1"
+  },
+  "lint-staged": {
+    "*.+(js|jsx|ts|tsx)": [
+      "prettier --write",
+      "npm run lint"
+    ]
+  },
+  "nodemonConfig": {
+    "watch": [
+      "bot",
+      ".env"
+    ],
+    "ext": "js,ts,json,yaml",
+    "ignore": [
+      ".git",
+      "node_modules",
+      "dist",
+      "bot/logs/*",
+      "bot/**/*.{spec,test}.ts"
+    ],
+    "exec": "tsc -p . && tsc-alias && ts-node -r tsconfig-paths/register --transpile-only bot/server.ts"
+  },
+  "mocha": {
+    "spec": "bot/**/*.{spec,test}.ts"
+  },
+  "engines": {
+    "node": ">=14.19.0"
+  }
+}
