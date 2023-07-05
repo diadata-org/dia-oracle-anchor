@@ -47,14 +47,6 @@ declare module 'oracle-base' {
       }
     }
 
-    POSTGRESQL: {
-      URI_CONNECTION: string
-      DATABASE: string
-      TABLES: {
-        TRANSACTION_LOGS: string
-      }
-    }
-
     CHAINS: {
       [key in ChainSupported]: {
         PROVIDER: string
