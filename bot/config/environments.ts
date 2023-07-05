@@ -18,14 +18,6 @@ export const ENV_CONFIG: IConfigs = {
     }
   },
 
-  POSTGRESQL: {
-    URI_CONNECTION: String(process.env.POSTGRESQL_URI_CONNECTION),
-    DATABASE: String(process.env.POSTGRESQL_DATABASE),
-    TABLES: {
-      TRANSACTION_LOGS: 'transaction_logs'
-    }
-  },
-
   CHAINS: {
     [ChainSupported.AlephZero]: {
       PROVIDER: String(process.env.BLOCKCHAIN_NODE || 'https://rpc.test.azero.dev')
