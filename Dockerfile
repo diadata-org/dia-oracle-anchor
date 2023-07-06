@@ -1,8 +1,12 @@
 FROM node:18 AS builder
 
+ARG DATABASE_URL
+
+ENV DATABASE_URL=$DATABASE_URL
+
 WORKDIR /usr/src/app
 
-COPY package*.json tsconfig.json .env ./
+COPY package*.json tsconfig.json ./
 COPY prisma ./prisma/
 
 RUN npm install
