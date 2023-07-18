@@ -33,7 +33,6 @@ pub mod oracle_anchor {
     pub struct TokenPriceChanged {
         #[ink(topic)]
         pair: String,
-        #[ink(topic)]
         price: u128,
         timestamp: u64,
     }
