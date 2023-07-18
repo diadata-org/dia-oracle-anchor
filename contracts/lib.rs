@@ -3,14 +3,37 @@
 #[ink::contract]
 pub mod oracle_anchor {
     use ink::prelude::string::String;
-    use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
+
+    #[ink::trait_definition]
+    pub trait OracleSetters {
+        #[ink(message)]
+        fn transfer_ownership(&mut self, new_owner: AccountId);
+
+        #[ink(message)]
+        fn set_updater(&mut self, updater: AccountId);
+
+        #[ink(message)]
+        fn set_price(&mut self, pair: String, price: u128);
+    }
+
+    #[ink::trait_definition]
+    pub trait OracleGetters {
+        #[ink(message)]
+        fn get_precision(&mut self) -> u128;
+
+        #[ink(message)]
+        fn get_updater(&self) -> AccountId;
+
+        #[ink(message)]
+        fn get_latest_price(&self, pair: String) -> Option<(u64, u128)>;
+    }
 
     #[ink(storage)]
     pub struct TokenPriceStorage {
         owner: AccountId,
         updater: AccountId,
-        pairs: Mapping<String, Vec<(u64, u128)>>,
+        pairs: Mapping<String, (u64, u128)>,
     }
 
     #[ink(event)]
@@ -33,9 +56,67 @@ pub mod oracle_anchor {
     pub struct TokenPriceChanged {
         #[ink(topic)]
         pair: String,
-        #[ink(topic)]
         price: u128,
         timestamp: u64,
+    }
+
+    impl OracleSetters for TokenPriceStorage {
+        #[ink(message)]
+        fn transfer_ownership(&mut self, new_owner: AccountId) {
+            let caller: AccountId = self.env().caller();
+            assert!(caller == self.owner, "only owner can transfer ownership");
+            self.owner = new_owner;
+            self.env().emit_event(OwnershipTransferred {
+                previous_owner: Some(caller),
+                new_owner,
+            });
+        }
+
+        #[ink(message)]
+        fn set_updater(&mut self, updater: AccountId) {
+            let caller: AccountId = self.env().caller();
+            assert!(caller == self.owner, "only owner can set updater");
+            self.updater = updater;
+            self.env().emit_event(UpdaterChanged {
+                old: Some(caller),
+                new: updater,
+            });
+        }
+
+        #[ink(message)]
+        fn set_price(&mut self, pair: String, price: u128) {
+            let caller: AccountId = self.env().caller();
+            assert!(caller == self.updater, "only updater can set price");
+            let current_timestamp: u64 = self.env().block_timestamp();
+
+            // create new record
+
+            // set price
+            self.pairs.insert(pair.clone(), &(current_timestamp, price));
+
+            self.env().emit_event(TokenPriceChanged {
+                pair,
+                price,
+                timestamp: current_timestamp,
+            });
+        }
+    }
+
+    impl OracleGetters for TokenPriceStorage {
+        #[ink(message)]
+        fn get_precision(&mut self) -> u128 {
+            return 1_000_000_000_000_000_000;
+        }
+
+        #[ink(message)]
+        fn get_updater(&self) -> AccountId {
+            self.updater
+        }
+
+        #[ink(message)]
+        fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
+            self.pairs.get(&pair)
+        }
     }
 
     impl TokenPriceStorage {
@@ -56,122 +137,7 @@ pub mod oracle_anchor {
                 pairs: Mapping::new(),
             }
         }
-
-        #[ink(message)]
-        pub fn get_precision(&mut self) -> u128 {
-            return 1_000_000_000_000_000_000;
-        }
-
-        #[ink(message)]
-        pub fn transfer_ownership(&mut self, new_owner: AccountId) {
-            let caller: AccountId = self.env().caller();
-            assert!(caller == self.owner, "only owner can transfer ownership");
-            self.owner = new_owner;
-            self.env().emit_event(OwnershipTransferred {
-                previous_owner: Some(caller),
-                new_owner,
-            });
-        }
-
-        #[ink(message)]
-        pub fn set_updater(&mut self, updater: AccountId) {
-            let caller: AccountId = self.env().caller();
-            assert!(caller == self.owner, "only owner can set updater");
-            self.updater = updater;
-            self.env().emit_event(UpdaterChanged {
-                old: Some(caller),
-                new: updater,
-            });
-        }
-
-        #[ink(message)]
-        pub fn get_updater(&self) -> AccountId {
-            self.updater
-        }
-
-        #[ink(message)]
-        pub fn set_price(&mut self, pair: String, price: u128) {
-            let caller: AccountId = self.env().caller();
-            assert!(caller == self.updater, "only updater can set price");
-            let current_timestamp: u64 = self.env().block_timestamp();
-            let mut pricing: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
-            pricing.push((current_timestamp, price));
-            self.pairs.insert(&pair, &pricing);
-
-            self.env().emit_event(TokenPriceChanged {
-                pair,
-                price,
-                timestamp: current_timestamp,
-            });
-        }
-
-        #[ink(message)]
-        pub fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
-            let pair: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
-            pair.last().copied()
-        }
-
-        #[ink(message)]
-        pub fn get_price_history(&self, pair: String) -> Vec<(u64, u128)> {
-            self.pairs.get(&pair).unwrap_or_default()
-        }
-
-        #[ink(message)]
-        pub fn get_price_history_by_index(
-            &self,
-            pair: String,
-            index: u32,
-            length: u32,
-        ) -> Vec<(u64, u128)> {
-            let mut history: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
-            let start: usize = index as usize;
-            let end: usize = (index + length) as usize;
-            if end > history.len() {
-                history = history[start..].to_vec();
-            } else {
-                history = history[start..end].to_vec();
-            }
-            history
-        }
-
-        #[ink(message)]
-        pub fn get_price_history_length(&self, pair: String) -> u32 {
-            let history: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
-            history.len() as u32
-        }
-
-        #[ink(message)]
-        pub fn get_price_history_by_timestamp_and_binary_search(
-            &self,
-            pair: String,
-            timestamp: u64,
-        ) -> (u64, u128) {
-            let history: Vec<(u64, u128)> = self.pairs.get(&pair).unwrap_or_default();
-            let latest_price: (u64, u128) = self.get_latest_price(pair.clone()).unwrap_or_default();
-            if timestamp >= latest_price.0 {
-                return latest_price;
-            }
-            let mut left: usize = 0;
-            let mut right: usize = history.len() - 1;
-            let mut mid: usize = 0;
-            // if not match return lower value
-            while left <= right {
-                mid = (left + right) / 2;
-                if history[mid].0 == timestamp {
-                    return history[mid];
-                } else if history[mid].0 < timestamp {
-                    left = mid + 1;
-                } else {
-                    right = mid - 1;
-                }
-            }
-            if mid == 0 {
-                return history[mid];
-            }
-            history[mid - 1]
-        }
     }
-
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -489,115 +455,6 @@ pub mod oracle_anchor {
             let account: AccountId = AccountId::from([0x2; 32]);
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
             token_price_storage.set_updater(AccountId::from([0x01; 32]));
-        }
-
-        #[ink::test]
-        fn get_price_history_works() {
-            let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
-            token_price_storage.set_price("abc".to_string(), 100);
-            token_price_storage.set_price("abc".to_string(), 200);
-            token_price_storage.set_price("abc".to_string(), 300);
-            assert_eq!(
-                token_price_storage.get_price_history("abc".to_string()),
-                vec![(0, 100), (0, 200), (0, 300)]
-            );
-        }
-
-        #[ink::test]
-        fn get_price_history_by_index_works() {
-            let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
-            token_price_storage.set_price("abc".to_string(), 100);
-            token_price_storage.set_price("abc".to_string(), 200);
-            token_price_storage.set_price("abc".to_string(), 300);
-            assert_eq!(
-                token_price_storage.get_price_history_by_index("abc".to_string(), 0, 2),
-                vec![(0, 100), (0, 200)]
-            );
-            assert_eq!(
-                token_price_storage.get_price_history_by_index("abc".to_string(), 1, 2),
-                vec![(0, 200), (0, 300)]
-            );
-            assert_eq!(
-                token_price_storage.get_price_history_by_index("abc".to_string(), 2, 2),
-                vec![(0, 300)]
-            );
-            assert_eq!(
-                token_price_storage.get_price_history_by_index("abc".to_string(), 3, 1),
-                vec![]
-            );
-        }
-
-        #[ink::test]
-        fn get_price_history_length_works() {
-            let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
-            token_price_storage.set_price("abc".to_string(), 100);
-            token_price_storage.set_price("abc".to_string(), 200);
-            token_price_storage.set_price("abc".to_string(), 300);
-            assert_eq!(
-                token_price_storage.get_price_history_length("abc".to_string()),
-                3
-            );
-        }
-
-        #[ink::test]
-        fn get_price_history_by_timestamp_and_binary_search_works() {
-            let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
-            // fake timestamp
-            ink::env::test::set_block_timestamp::<ink::env::DefaultEnvironment>(100);
-            token_price_storage.set_price("abc".to_string(), 100);
-            ink::env::test::set_block_timestamp::<ink::env::DefaultEnvironment>(121);
-            token_price_storage.set_price("abc".to_string(), 200);
-            ink::env::test::set_block_timestamp::<ink::env::DefaultEnvironment>(134);
-            token_price_storage.set_price("abc".to_string(), 300);
-            ink::env::test::set_block_timestamp::<ink::env::DefaultEnvironment>(145);
-            token_price_storage.set_price("abc".to_string(), 400);
-            ink::env::test::set_block_timestamp::<ink::env::DefaultEnvironment>(156);
-            token_price_storage.set_price("abc".to_string(), 500);
-
-            let emitted_events: Vec<ink::env::test::EmittedEvent> =
-                ink::env::test::recorded_events().collect::<Vec<_>>();
-            assert_eq!(emitted_events.len(), 7);
-            assert_token_price_changed_event(&emitted_events[2], "abc".to_string(), 100, 100);
-            assert_token_price_changed_event(&emitted_events[3], "abc".to_string(), 200, 121);
-            assert_token_price_changed_event(&emitted_events[4], "abc".to_string(), 300, 134);
-            assert_token_price_changed_event(&emitted_events[5], "abc".to_string(), 400, 145);
-            assert_token_price_changed_event(&emitted_events[6], "abc".to_string(), 500, 156);
-
-            assert_eq!(
-                token_price_storage
-                    .get_price_history_by_timestamp_and_binary_search("abc".to_string(), 100),
-                (100, 100)
-            );
-
-            assert_eq!(
-                token_price_storage
-                    .get_price_history_by_timestamp_and_binary_search("abc".to_string(), 120),
-                (100, 100)
-            );
-
-            assert_eq!(
-                token_price_storage
-                    .get_price_history_by_timestamp_and_binary_search("abc".to_string(), 121),
-                (121, 200)
-            );
-
-            assert_eq!(
-                token_price_storage
-                    .get_price_history_by_timestamp_and_binary_search("abc".to_string(), 140),
-                (134, 300)
-            );
-
-            assert_eq!(
-                token_price_storage
-                    .get_price_history_by_timestamp_and_binary_search("abc".to_string(), 150),
-                (145, 400)
-            );
-
-            assert_eq!(
-                token_price_storage
-                    .get_price_history_by_timestamp_and_binary_search("abc".to_string(), 190),
-                (156, 500)
-            );
         }
     }
 }

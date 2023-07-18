@@ -1,6 +1,6 @@
 export const ASSET_PRICE_ANCHOR_ABI = {
   source: {
-    hash: '0x6a14b5923f5120d28df54b403b78a92cc9c892c1125974090d906ca2034c8e03',
+    hash: '0xdaa5488dc4ffd0796225efb15534cddcd7c87339b6b4678e542abf65da2b9570',
     language: 'ink! 4.2.1',
     compiler: 'rustc 1.69.0',
     build_info: {
@@ -28,7 +28,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
         payable: false,
         returnType: {
           displayName: ['ink_primitives', 'ConstructorResult'],
-          type: 7
+          type: 5
         },
         selector: '0x9bae9d5e'
       }
@@ -41,24 +41,24 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       },
       balance: {
         displayName: ['Balance'],
-        type: 6
+        type: 4
       },
       blockNumber: {
         displayName: ['BlockNumber'],
-        type: 15
+        type: 16
       },
       chainExtension: {
         displayName: ['ChainExtension'],
-        type: 20
+        type: 17
       },
       hash: {
         displayName: ['Hash'],
-        type: 19
+        type: 15
       },
       maxEventTopics: 4,
       timestamp: {
         displayName: ['Timestamp'],
-        type: 5
+        type: 3
       }
     },
     events: [
@@ -70,7 +70,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
             label: 'previous_owner',
             type: {
               displayName: ['Option'],
-              type: 18
+              type: 14
             }
           },
           {
@@ -94,7 +94,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
             label: 'old',
             type: {
               displayName: ['Option'],
-              type: 18
+              type: 14
             }
           },
           {
@@ -118,16 +118,16 @@ export const ASSET_PRICE_ANCHOR_ABI = {
             label: 'pair',
             type: {
               displayName: ['String'],
-              type: 11
+              type: 8
             }
           },
           {
             docs: [],
-            indexed: true,
+            indexed: false,
             label: 'price',
             type: {
               displayName: ['u128'],
-              type: 6
+              type: 4
             }
           },
           {
@@ -136,7 +136,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
             label: 'timestamp',
             type: {
               displayName: ['u64'],
-              type: 5
+              type: 3
             }
           }
         ],
@@ -146,7 +146,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
     ],
     lang_error: {
       displayName: ['ink', 'LangError'],
-      type: 9
+      type: 7
     },
     messages: [
       {
@@ -161,14 +161,14 @@ export const ASSET_PRICE_ANCHOR_ABI = {
         ],
         default: false,
         docs: [],
-        label: 'transfer_ownership',
+        label: 'OracleSetters::transfer_ownership',
         mutates: true,
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 7
+          type: 5
         },
-        selector: '0x107e33ea'
+        selector: '0x4ecfa4b8'
       },
       {
         args: [
@@ -182,27 +182,14 @@ export const ASSET_PRICE_ANCHOR_ABI = {
         ],
         default: false,
         docs: [],
-        label: 'set_updater',
+        label: 'OracleSetters::set_updater',
         mutates: true,
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 7
+          type: 5
         },
-        selector: '0x363c359e'
-      },
-      {
-        args: [],
-        default: false,
-        docs: [],
-        label: 'get_updater',
-        mutates: false,
-        payable: false,
-        returnType: {
-          displayName: ['ink', 'MessageResult'],
-          type: 10
-        },
-        selector: '0x831f1354'
+        selector: '0xd9172755'
       },
       {
         args: [
@@ -210,27 +197,53 @@ export const ASSET_PRICE_ANCHOR_ABI = {
             label: 'pair',
             type: {
               displayName: ['String'],
-              type: 11
+              type: 8
             }
           },
           {
             label: 'price',
             type: {
               displayName: ['u128'],
-              type: 6
+              type: 4
             }
           }
         ],
         default: false,
         docs: [],
-        label: 'set_price',
+        label: 'OracleSetters::set_price',
         mutates: true,
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 7
+          type: 5
         },
-        selector: '0x3df958af'
+        selector: '0xc812fda7'
+      },
+      {
+        args: [],
+        default: false,
+        docs: [],
+        label: 'OracleGetters::get_precision',
+        mutates: true,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 9
+        },
+        selector: '0xf87a9bd6'
+      },
+      {
+        args: [],
+        default: false,
+        docs: [],
+        label: 'OracleGetters::get_updater',
+        mutates: false,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 10
+        },
+        selector: '0xbcc301b4'
       },
       {
         args: [
@@ -238,125 +251,20 @@ export const ASSET_PRICE_ANCHOR_ABI = {
             label: 'pair',
             type: {
               displayName: ['String'],
-              type: 11
+              type: 8
             }
           }
         ],
         default: false,
         docs: [],
-        label: 'get_latest_price',
+        label: 'OracleGetters::get_latest_price',
         mutates: false,
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 12
+          type: 11
         },
-        selector: '0x9b610c2e'
-      },
-      {
-        args: [
-          {
-            label: 'pair',
-            type: {
-              displayName: ['String'],
-              type: 11
-            }
-          }
-        ],
-        default: false,
-        docs: [],
-        label: 'get_price_history',
-        mutates: false,
-        payable: false,
-        returnType: {
-          displayName: ['ink', 'MessageResult'],
-          type: 14
-        },
-        selector: '0x8bf30111'
-      },
-      {
-        args: [
-          {
-            label: 'pair',
-            type: {
-              displayName: ['String'],
-              type: 11
-            }
-          },
-          {
-            label: 'index',
-            type: {
-              displayName: ['u32'],
-              type: 15
-            }
-          },
-          {
-            label: 'length',
-            type: {
-              displayName: ['u32'],
-              type: 15
-            }
-          }
-        ],
-        default: false,
-        docs: [],
-        label: 'get_price_history_by_index',
-        mutates: false,
-        payable: false,
-        returnType: {
-          displayName: ['ink', 'MessageResult'],
-          type: 14
-        },
-        selector: '0x1b2f6fd9'
-      },
-      {
-        args: [
-          {
-            label: 'pair',
-            type: {
-              displayName: ['String'],
-              type: 11
-            }
-          }
-        ],
-        default: false,
-        docs: [],
-        label: 'get_price_history_length',
-        mutates: false,
-        payable: false,
-        returnType: {
-          displayName: ['ink', 'MessageResult'],
-          type: 16
-        },
-        selector: '0xd2417dc0'
-      },
-      {
-        args: [
-          {
-            label: 'pair',
-            type: {
-              displayName: ['String'],
-              type: 11
-            }
-          },
-          {
-            label: 'timestamp',
-            type: {
-              displayName: ['u64'],
-              type: 5
-            }
-          }
-        ],
-        default: false,
-        docs: [],
-        label: 'get_price_history_by_timestamp_and_binary_search',
-        mutates: false,
-        payable: false,
-        returnType: {
-          displayName: ['ink', 'MessageResult'],
-          type: 17
-        },
-        selector: '0x725a6bec'
+        selector: '0xbddfa62d'
       }
     ]
   },
@@ -387,9 +295,28 @@ export const ASSET_PRICE_ANCHOR_ABI = {
               layout: {
                 root: {
                   layout: {
-                    leaf: {
-                      key: '0xe08f55da',
-                      ty: 3
+                    struct: {
+                      fields: [
+                        {
+                          layout: {
+                            leaf: {
+                              key: '0xe08f55da',
+                              ty: 3
+                            }
+                          },
+                          name: '0'
+                        },
+                        {
+                          layout: {
+                            leaf: {
+                              key: '0xe08f55da',
+                              ty: 4
+                            }
+                          },
+                          name: '1'
+                        }
+                      ],
+                      name: '(A, B)'
                     }
                   },
                   root_key: '0xe08f55da'
@@ -444,9 +371,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       id: 3,
       type: {
         def: {
-          sequence: {
-            type: 4
-          }
+          primitive: 'u64'
         }
       }
     },
@@ -454,7 +379,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       id: 4,
       type: {
         def: {
-          tuple: [5, 6]
+          primitive: 'u128'
         }
       }
     },
@@ -462,28 +387,12 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       id: 5,
       type: {
         def: {
-          primitive: 'u64'
-        }
-      }
-    },
-    {
-      id: 6,
-      type: {
-        def: {
-          primitive: 'u128'
-        }
-      }
-    },
-    {
-      id: 7,
-      type: {
-        def: {
           variant: {
             variants: [
               {
                 fields: [
                   {
-                    type: 8
+                    type: 6
                   }
                 ],
                 index: 0,
@@ -492,7 +401,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
               {
                 fields: [
                   {
-                    type: 9
+                    type: 7
                   }
                 ],
                 index: 1,
@@ -504,18 +413,18 @@ export const ASSET_PRICE_ANCHOR_ABI = {
         params: [
           {
             name: 'T',
-            type: 8
+            type: 6
           },
           {
             name: 'E',
-            type: 9
+            type: 7
           }
         ],
         path: ['Result']
       }
     },
     {
-      id: 8,
+      id: 6,
       type: {
         def: {
           tuple: []
@@ -523,7 +432,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       }
     },
     {
-      id: 9,
+      id: 7,
       type: {
         def: {
           variant: {
@@ -536,6 +445,54 @@ export const ASSET_PRICE_ANCHOR_ABI = {
           }
         },
         path: ['ink_primitives', 'LangError']
+      }
+    },
+    {
+      id: 8,
+      type: {
+        def: {
+          primitive: 'str'
+        }
+      }
+    },
+    {
+      id: 9,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 4
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 4
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
       }
     },
     {
@@ -556,7 +513,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
               {
                 fields: [
                   {
-                    type: 9
+                    type: 7
                   }
                 ],
                 index: 1,
@@ -572,7 +529,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
           },
           {
             name: 'E',
-            type: 9
+            type: 7
           }
         ],
         path: ['Result']
@@ -582,20 +539,12 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       id: 11,
       type: {
         def: {
-          primitive: 'str'
-        }
-      }
-    },
-    {
-      id: 12,
-      type: {
-        def: {
           variant: {
             variants: [
               {
                 fields: [
                   {
-                    type: 13
+                    type: 12
                   }
                 ],
                 index: 0,
@@ -604,7 +553,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
               {
                 fields: [
                   {
-                    type: 9
+                    type: 7
                   }
                 ],
                 index: 1,
@@ -616,18 +565,18 @@ export const ASSET_PRICE_ANCHOR_ABI = {
         params: [
           {
             name: 'T',
-            type: 13
+            type: 12
           },
           {
             name: 'E',
-            type: 9
+            type: 7
           }
         ],
         path: ['Result']
       }
     },
     {
-      id: 13,
+      id: 12,
       type: {
         def: {
           variant: {
@@ -639,7 +588,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
               {
                 fields: [
                   {
-                    type: 4
+                    type: 13
                   }
                 ],
                 index: 1,
@@ -651,142 +600,22 @@ export const ASSET_PRICE_ANCHOR_ABI = {
         params: [
           {
             name: 'T',
-            type: 4
+            type: 13
           }
         ],
         path: ['Option']
       }
     },
     {
-      id: 14,
+      id: 13,
       type: {
         def: {
-          variant: {
-            variants: [
-              {
-                fields: [
-                  {
-                    type: 3
-                  }
-                ],
-                index: 0,
-                name: 'Ok'
-              },
-              {
-                fields: [
-                  {
-                    type: 9
-                  }
-                ],
-                index: 1,
-                name: 'Err'
-              }
-            ]
-          }
-        },
-        params: [
-          {
-            name: 'T',
-            type: 3
-          },
-          {
-            name: 'E',
-            type: 9
-          }
-        ],
-        path: ['Result']
-      }
-    },
-    {
-      id: 15,
-      type: {
-        def: {
-          primitive: 'u32'
+          tuple: [3, 4]
         }
       }
     },
     {
-      id: 16,
-      type: {
-        def: {
-          variant: {
-            variants: [
-              {
-                fields: [
-                  {
-                    type: 15
-                  }
-                ],
-                index: 0,
-                name: 'Ok'
-              },
-              {
-                fields: [
-                  {
-                    type: 9
-                  }
-                ],
-                index: 1,
-                name: 'Err'
-              }
-            ]
-          }
-        },
-        params: [
-          {
-            name: 'T',
-            type: 15
-          },
-          {
-            name: 'E',
-            type: 9
-          }
-        ],
-        path: ['Result']
-      }
-    },
-    {
-      id: 17,
-      type: {
-        def: {
-          variant: {
-            variants: [
-              {
-                fields: [
-                  {
-                    type: 4
-                  }
-                ],
-                index: 0,
-                name: 'Ok'
-              },
-              {
-                fields: [
-                  {
-                    type: 9
-                  }
-                ],
-                index: 1,
-                name: 'Err'
-              }
-            ]
-          }
-        },
-        params: [
-          {
-            name: 'T',
-            type: 4
-          },
-          {
-            name: 'E',
-            type: 9
-          }
-        ],
-        path: ['Result']
-      }
-    },
-    {
-      id: 18,
+      id: 14,
       type: {
         def: {
           variant: {
@@ -817,7 +646,7 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       }
     },
     {
-      id: 19,
+      id: 15,
       type: {
         def: {
           composite: {
@@ -833,7 +662,15 @@ export const ASSET_PRICE_ANCHOR_ABI = {
       }
     },
     {
-      id: 20,
+      id: 16,
+      type: {
+        def: {
+          primitive: 'u32'
+        }
+      }
+    },
+    {
+      id: 17,
       type: {
         def: {
           variant: {}

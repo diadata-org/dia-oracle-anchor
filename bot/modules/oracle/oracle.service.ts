@@ -69,12 +69,17 @@ export default class OracleService {
         throw new Error(`Error while getting asset price: ${JSON.stringify(error)}`)
       }
 
-      const latestTokenPrice = await this._alephZeroProvider.contractQuery(api, contract.address.toHex(), contract, 'getLatestPrice', {}, [
-        `${tokenPrice.Symbol}/USD`
-      ])
+      const latestTokenPrice = await this._alephZeroProvider.contractQuery(
+        api,
+        contract.address.toHex(),
+        contract,
+        'OracleGetters::getLatestPrice',
+        {},
+        [`${tokenPrice.Symbol}/USD`]
+      )
 
       const price = Number(
-        this._alephZeroProvider.parseFromIntToFloat(String((latestTokenPrice.output?.toJSON() as any)?.ok?.[1]), PRECISION_DECIMALS)
+        this._alephZeroProvider.parseFromIntToFloat(String((latestTokenPrice.output?.toJSON() as any)?.ok?.[1] ?? '0'), PRECISION_DECIMALS)
       )
 
       const currentPrice = Number(tokenPrice.Price)
@@ -122,7 +127,7 @@ export default class OracleService {
         api,
         this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
         contract,
-        'setPrice',
+        'OracleSetters::setPrice',
         {},
         [`${tokenPrice.Symbol}/USD`, this._alephZeroProvider.parseFromFloatToInt(String(tokenPrice.Price), PRECISION_DECIMALS)]
       )
