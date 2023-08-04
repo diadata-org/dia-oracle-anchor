@@ -104,11 +104,6 @@ pub mod oracle_anchor {
 
     impl OracleGetters for TokenPriceStorage {
         #[ink(message)]
-        fn get_precision(&mut self) -> u128 {
-            return 1_000_000_000_000_000_000;
-        }
-
-        #[ink(message)]
         fn get_updater(&self) -> AccountId {
             self.updater
         }
