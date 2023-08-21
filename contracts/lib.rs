@@ -422,7 +422,7 @@ pub mod oracle_anchor {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
             token_price_storage.transfer_ownership(AccountId::from([0x02; 32]));
             assert_eq!(
-                token_price_storage.owner.get().unwrap(),
+                token_price_storage.data.get().unwrap().owner,
                 AccountId::from([0x02; 32]),
                 "transfer ownership failed"
             );
