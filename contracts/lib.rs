@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use self::oracle_anchor::TokenPriceStorageRef;
+
 #[ink::contract]
 pub mod oracle_anchor {
     use ink::prelude::string::String;
