@@ -68,59 +68,45 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn transfer_ownership(&mut self, new_owner: AccountId) {
             let caller: AccountId = self.env().caller();
-            if let Some(mut tps) = self.data.get() {
-                assert!(
-                    caller == tps.owner,
-                    "only owner can transfer ownership"
-                );
-                tps.owner = new_owner.clone();
-                self.data.set(&tps);
-                self.env().emit_event(OwnershipTransferred {
-                    previous_owner: Some(caller),
-                    new_owner,
-                });
-            }
+
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+
+            assert!(caller == tps.owner, "only owner can transfer ownership");
+            tps.owner = new_owner.clone();
+            self.data.set(&tps);
+            self.env().emit_event(OwnershipTransferred {
+                previous_owner: Some(caller),
+                new_owner,
+            });
         }
 
         #[ink(message)]
         fn set_updater(&mut self, updater: AccountId) {
             let caller: AccountId = self.env().caller();
-            if let Some(mut tps) = self.data.get() {
-                assert!(
-                    caller == tps.owner,
-                    "only owner can set updater"
-                );
-                tps.updater = updater.clone();
-                self.data.set(&tps);
-                self.env().emit_event(UpdaterChanged {
-                    old: Some(caller),
-                    new: updater,
-                });
 
-            }
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
 
-            
+            assert!(caller == tps.owner, "only owner can set updater");
+            tps.updater = updater.clone();
+            self.data.set(&tps);
+            self.env().emit_event(UpdaterChanged {
+                old: Some(caller),
+                new: updater,
+            });
         }
 
         #[ink(message)]
         fn set_price(&mut self, pair: String, price: u128) {
             let caller: AccountId = self.env().caller();
-            if let Some(mut tps) = self.data.get() {
-
-            assert!(
-                caller == tps.updater,
-                "only updater can set price"
-            );
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+            assert!(caller == tps.updater, "only updater can set price");
             let current_timestamp: u64 = self.env().block_timestamp();
 
             // create new record
 
-            tps
-                .pairs
-                .insert(pair.clone(), &(current_timestamp, price));
+            tps.pairs.insert(pair.clone(), &(current_timestamp, price));
 
-                self.data.set(&tps);
-
+            self.data.set(&tps);
 
             self.env().emit_event(TokenPriceChanged {
                 pair,
@@ -129,13 +115,11 @@ pub mod oracle_anchor {
             });
         }
     }
-    }
 
     impl OracleGetters for TokenPriceStorage {
         #[ink(message)]
         fn get_updater(&self) -> AccountId {
             self.data.get().unwrap().updater
-            
         }
 
         #[ink(message)]
@@ -177,20 +161,13 @@ pub mod oracle_anchor {
         #[ink(message)]
         pub fn set_code(&mut self, code_hash: [u8; 32]) {
             let caller: AccountId = self.env().caller();
-            if let Some(tps) = self.data.get() {
-                assert!(
-                    caller == tps.owner,
-                    "only owner can set set code"
-                );
-    
-                ink::env::set_code_hash(&code_hash).unwrap_or_else(|err| {
-                    panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
-                });
-                ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
+            let tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+            assert!(caller == tps.owner, "only owner can set set code");
 
-            }
-
-           
+            ink::env::set_code_hash(&code_hash).unwrap_or_else(|err| {
+                panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
+            });
+            ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
         }
     }
     #[cfg(test)]
@@ -491,7 +468,6 @@ pub mod oracle_anchor {
                 0,
             );
         }
-
 
         #[ink::test]
         #[should_panic]
