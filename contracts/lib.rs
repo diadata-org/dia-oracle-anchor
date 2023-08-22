@@ -119,6 +119,7 @@ pub mod oracle_anchor {
                 .pairs
                 .insert(pair.clone(), &(current_timestamp, price));
 
+                self.data.set(&tps);
 
 
             self.env().emit_event(TokenPriceChanged {
