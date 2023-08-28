@@ -1,13 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use self::oracle_anchor::TokenPriceStorageRef;
+
 #[ink::contract]
 pub mod oracle_anchor {
     use ink::prelude::string::String;
-    use ink::storage::{
-        traits::ManualKey,
-        Mapping,
-        Lazy,
-    };
+    use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
     #[ink::trait_definition]
     pub trait OracleSetters {
@@ -23,7 +21,6 @@ pub mod oracle_anchor {
 
     #[ink::trait_definition]
     pub trait OracleGetters {
-
         #[ink(message)]
         fn get_updater(&self) -> AccountId;
 
@@ -31,11 +28,16 @@ pub mod oracle_anchor {
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)>;
     }
 
+    #[ink::storage_item]
+    struct TokenPriceStruct {
+        owner: AccountId,
+        updater: AccountId,
+        pairs: Mapping<String, (u64, u128)>,
+    }
+
     #[ink(storage)]
     pub struct TokenPriceStorage {
-        owner: Lazy<AccountId,ManualKey<0x1>>,
-        updater: Lazy<AccountId,ManualKey<0x2>>,
-        pairs:  Mapping<String, (u64, u128)>,
+        data: Lazy<TokenPriceStruct, ManualKey<0x1>>,
     }
 
     #[ink(event)]
@@ -66,8 +68,12 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn transfer_ownership(&mut self, new_owner: AccountId) {
             let caller: AccountId = self.env().caller();
-            assert!(caller == self.owner.get().unwrap(), "only owner can transfer ownership");
-              self.owner.set(&new_owner.clone());
+
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+
+            assert!(caller == tps.owner, "only owner can transfer ownership");
+            tps.owner = new_owner.clone();
+            self.data.set(&tps);
             self.env().emit_event(OwnershipTransferred {
                 previous_owner: Some(caller),
                 new_owner,
@@ -77,8 +83,12 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn set_updater(&mut self, updater: AccountId) {
             let caller: AccountId = self.env().caller();
-            assert!(caller == self.owner.get().unwrap(), "only owner can set updater");
-             self.updater.set(&updater.clone());
+
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+
+            assert!(caller == tps.owner, "only owner can set updater");
+            tps.updater = updater.clone();
+            self.data.set(&tps);
             self.env().emit_event(UpdaterChanged {
                 old: Some(caller),
                 new: updater,
@@ -88,14 +98,15 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn set_price(&mut self, pair: String, price: u128) {
             let caller: AccountId = self.env().caller();
-            assert!(caller == self.updater.get().unwrap(), "only updater can set price");
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+            assert!(caller == tps.updater, "only updater can set price");
             let current_timestamp: u64 = self.env().block_timestamp();
 
             // create new record
 
-            self.pairs.insert(pair.clone(), &(current_timestamp, price));
+            tps.pairs.insert(pair.clone(), &(current_timestamp, price));
 
- 
+            self.data.set(&tps);
 
             self.env().emit_event(TokenPriceChanged {
                 pair,
@@ -106,16 +117,14 @@ pub mod oracle_anchor {
     }
 
     impl OracleGetters for TokenPriceStorage {
-        
         #[ink(message)]
         fn get_updater(&self) -> AccountId {
-            self.updater.get().unwrap()
+            self.data.get().unwrap().updater
         }
 
         #[ink(message)]
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
-            // self.pairs.get().unwrap().get(&pair)
-            self.pairs.get(&pair)
+            self.data.get().unwrap().pairs.get(&pair)
         }
     }
 
@@ -132,28 +141,28 @@ pub mod oracle_anchor {
                 new: caller,
             });
 
-            let mut lazy_owner = Lazy::new();
-            lazy_owner.set(&caller);
-            let mut lazy_updater = Lazy::new();
-            lazy_updater.set(&caller);
-            Self {
-                owner:lazy_owner,
-                updater: lazy_updater,
+            let tps = TokenPriceStruct {
+                owner: caller,
+                updater: caller,
                 pairs: Mapping::new(),
-            }
+            };
+
+            let mut ldata = Lazy::new();
+            ldata.set(&tps);
+
+            Self { data: ldata }
         }
 
         #[ink(message)]
         pub fn code_hash(&self) -> Hash {
-            self.env()
-                .own_code_hash().unwrap()
+            self.env().own_code_hash().unwrap_or(Default::default())
         }
 
-    
         #[ink(message)]
         pub fn set_code(&mut self, code_hash: [u8; 32]) {
             let caller: AccountId = self.env().caller();
-            assert!(caller == self.owner.get().unwrap(), "only owner can set set code");
+            let tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+            assert!(caller == tps.owner, "only owner can set set code");
 
             ink::env::set_code_hash(&code_hash).unwrap_or_else(|err| {
                 panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
@@ -407,7 +416,7 @@ pub mod oracle_anchor {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
             token_price_storage.transfer_ownership(AccountId::from([0x02; 32]));
             assert_eq!(
-                token_price_storage.owner.get().unwrap(),
+                token_price_storage.data.get().unwrap().owner,
                 AccountId::from([0x02; 32]),
                 "transfer ownership failed"
             );
@@ -442,21 +451,20 @@ pub mod oracle_anchor {
                 AccountId::from([0x02; 32]),
             );
         }
-        
 
         #[ink::test]
         fn set_price_works() {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
-            token_price_storage.set_price("abc".to_string(), 100);
+            token_price_storage.set_price("abc".to_string(), 1001);
             assert_eq!(
                 token_price_storage.get_latest_price("abc".to_string()),
-                Some((0, 100))
+                Some((0, 1001))
             );
 
             assert_token_price_changed_event(
                 &ink::env::test::recorded_events().collect::<Vec<_>>()[2],
                 "abc".to_string(),
-                100,
+                1001,
                 0,
             );
         }
