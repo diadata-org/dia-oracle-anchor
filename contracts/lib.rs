@@ -489,4 +489,43 @@ pub mod oracle_anchor {
             token_price_storage.set_updater(AccountId::from([0x01; 32]));
         }
     }
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::*;
+        use ink_e2e::build_message;
+
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let constructor = TokenPriceStorageRef::new();
+
+            let contract_acc_id = client
+                .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+                .call(|tps| tps.set_price("abc".to_string(), 1001));
+
+            let set_price_res = client
+                .call(&ink_e2e::alice(), set_price_message, 0, None)
+                .await
+                .expect("set failed");
+
+            let get_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+                .call(|tps| tps.get_latest_price("abc".to_string()));
+
+            let get_price_res = client
+                .call(&ink_e2e::alice(), get_price_message, 0, None)
+                .await
+                .expect("get failed");
+
+            let price = get_price_res.return_value().expect("Value is None").1;
+            assert_eq!(price, 1001);
+
+            Ok(())
+        }
+    }
 }
