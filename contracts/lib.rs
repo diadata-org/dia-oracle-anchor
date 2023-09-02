@@ -72,7 +72,7 @@ pub mod oracle_anchor {
             let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
 
             assert!(caller == tps.owner, "only owner can transfer ownership");
-            tps.owner = new_owner.clone();
+            tps.owner = new_owner;
             self.data.set(&tps);
             self.env().emit_event(OwnershipTransferred {
                 previous_owner: Some(caller),
@@ -87,7 +87,7 @@ pub mod oracle_anchor {
             let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
 
             assert!(caller == tps.owner, "only owner can set updater");
-            tps.updater = updater.clone();
+            tps.updater = updater;
             self.data.set(&tps);
             self.env().emit_event(UpdaterChanged {
                 old: Some(caller),
@@ -124,11 +124,19 @@ pub mod oracle_anchor {
 
         #[ink(message)]
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
-            self.data.get().unwrap().pairs.get(&pair)
+            self.data.get().unwrap().pairs.get(pair)
         }
     }
 
+    impl Default for TokenPriceStorage {
+                   fn default() -> Self {
+                        Self::new()
+                   }
+             }
+
     impl TokenPriceStorage {
+
+        
         #[ink(constructor)]
         pub fn new() -> Self {
             let caller: AccountId = Self::env().caller();
@@ -152,6 +160,8 @@ pub mod oracle_anchor {
 
             Self { data: ldata }
         }
+
+        
 
         #[ink(message)]
         pub fn code_hash(&self) -> Hash {
@@ -509,7 +519,7 @@ pub mod oracle_anchor {
             let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
                 .call(|tps| tps.set_price("abc".to_string(), 1001));
 
-            let set_price_res = client
+            let _set_price_res = client
                 .call(&ink_e2e::alice(), set_price_message, 0, None)
                 .await
                 .expect("set failed");
