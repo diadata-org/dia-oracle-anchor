@@ -465,16 +465,18 @@ pub mod oracle_anchor {
         #[ink::test]
         fn set_price_works() {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
+
+            const PRICE: u128 = 1001;
             token_price_storage.set_price("abc".to_string(), 1001);
             assert_eq!(
                 token_price_storage.get_latest_price("abc".to_string()),
-                Some((0, 1001))
+                Some((0, PRICE))
             );
 
             assert_token_price_changed_event(
                 &ink::env::test::recorded_events().collect::<Vec<_>>()[2],
                 "abc".to_string(),
-                1001,
+                PRICE,
                 0,
             );
         }
