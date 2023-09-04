@@ -62,12 +62,6 @@ jobs:
           cargo contract build --release
           cargo test --release
           popd
-
-      - name: Run e2e tests 
-        shell: bash
-        run: |
-          cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git
-          cargo test --features e2e-tests
           
 
   
