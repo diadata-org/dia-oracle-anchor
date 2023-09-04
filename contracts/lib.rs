@@ -129,14 +129,12 @@ pub mod oracle_anchor {
     }
 
     impl Default for TokenPriceStorage {
-                   fn default() -> Self {
-                        Self::new()
-                   }
-             }
+        fn default() -> Self {
+            Self::new()
+        }
+    }
 
     impl TokenPriceStorage {
-
-        
         #[ink(constructor)]
         pub fn new() -> Self {
             let caller: AccountId = Self::env().caller();
@@ -160,8 +158,6 @@ pub mod oracle_anchor {
 
             Self { data: ldata }
         }
-
-        
 
         #[ink(message)]
         pub fn code_hash(&self) -> Hash {
@@ -487,26 +483,16 @@ pub mod oracle_anchor {
 
             const PRICE: u128 = 1001;
 
-
             token_price_storage.set_price("abc".to_string(), PRICE);
 
             let mut latest_price = token_price_storage.get_latest_price("abc".to_string());
-            assert_eq!(
-                latest_price,
-                Some((0, PRICE))
-            );
+            assert_eq!(latest_price, Some((0, PRICE)));
 
-            token_price_storage.set_price("abc".to_string(), PRICE+10);
+            token_price_storage.set_price("abc".to_string(), PRICE + 10);
 
             latest_price = token_price_storage.get_latest_price("abc".to_string());
 
-            assert_eq!(
-                latest_price,
-                Some((0, PRICE+10))
-            );
-
-
-          
+            assert_eq!(latest_price, Some((0, PRICE + 10)));
         }
 
         #[ink::test]
@@ -540,9 +526,6 @@ pub mod oracle_anchor {
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let constructor = TokenPriceStorageRef::new();
             const PRICE: u128 = 1001;
-
-
-            
 
             let contract_acc_id = client
                 .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
