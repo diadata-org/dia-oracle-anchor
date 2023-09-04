@@ -38,6 +38,8 @@ mod oracleexample {
         #[ink_e2e::test]
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             //init Oracle contract
+            const PRICE: u128 = 1001;
+
 
             let constructor = TokenPriceStorageRef::new();
             let contract_acc_id = client
@@ -58,7 +60,7 @@ mod oracleexample {
 
             // set price for oracle
             let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
-                .call(|tps| tps.set_price("abc".to_string(), 1001));
+                .call(|tps| tps.set_price("abc".to_string(), PRICE));
 
             let _set_price_res = client
                 .call(&ink_e2e::alice(), set_price_message, 0, None)
@@ -73,8 +75,8 @@ mod oracleexample {
                 .await
                 .expect("get failed");
 
-            let price = get_price_res.return_value().expect("Value is None").1;
-            assert_eq!(price, 1001);
+            let latest_price = get_price_res.return_value().expect("Value is None").1;
+            assert_eq!(latest_price, PRICE);
 
             // get price for oracle from example contract
 
@@ -87,11 +89,11 @@ mod oracleexample {
                 .await
                 .expect("get failed");
 
-            let price = get_price_res_example
+            let latest_price = get_price_res_example
                 .return_value()
                 .expect("Value is None")
                 .1;
-            assert_eq!(price, 1001);
+            assert_eq!(latest_price, PRICE);
 
             Ok(())
         }

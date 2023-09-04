@@ -482,6 +482,34 @@ pub mod oracle_anchor {
         }
 
         #[ink::test]
+        fn set_price_multiple_works() {
+            let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
+
+            const PRICE: u128 = 1001;
+
+
+            token_price_storage.set_price("abc".to_string(), PRICE);
+
+            let mut latest_price = token_price_storage.get_latest_price("abc".to_string());
+            assert_eq!(
+                latest_price,
+                Some((0, PRICE))
+            );
+
+            token_price_storage.set_price("abc".to_string(), PRICE+10);
+
+            latest_price = token_price_storage.get_latest_price("abc".to_string());
+
+            assert_eq!(
+                latest_price,
+                Some((0, PRICE+10))
+            );
+
+
+          
+        }
+
+        #[ink::test]
         #[should_panic]
         fn set_price_panic() {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
