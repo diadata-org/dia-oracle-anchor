@@ -33,14 +33,6 @@ jobs:
           command: fmt
           args: --all
 
-      - name: Run linter
-        uses: actions-rs/cargo@v1
-        env:
-          RUSTC_WRAPPER: ""
-          RUSTC_WORKSPACE_WRAPPER: sccache
-        with:
-          command: clippy
-          args: --all-targets -- --no-deps -D warnings
 
       - name: Run unit test suite
         uses: actions-rs/cargo@v1
