@@ -13,6 +13,9 @@ jobs:
   main:
     name: Run check, test and lints
     runs-on: ubuntu-latest
+    env:
+      CARGO_INCREMENTAL: 0
+      RUSTC_WRAPPER: sccache
     
     steps:
       - name: Checkout source code
@@ -30,6 +33,17 @@ jobs:
         with:
           command: fmt
           args: --all
+
+      - name: Run linter
+        uses: actions-rs/cargo@v1
+        env:
+          # https://github.com/mozilla/sccache/issues/966
+          RUSTC_WRAPPER: ""
+          RUSTC_WORKSPACE_WRAPPER: sccache
+        with:
+          command: clippy
+          args: --all-targets -- --no-deps -D warnings
+          
 
 
       - name: Run unit test suite
@@ -50,3 +64,11 @@ jobs:
           cargo contract build --release
           cargo test --release
           popd
+
+      - name: Run e2e tests 
+        shell: bash
+        run: |
+          cargo test --features e2e-tests
+          
+
+  
