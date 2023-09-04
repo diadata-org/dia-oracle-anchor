@@ -467,7 +467,7 @@ pub mod oracle_anchor {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
 
             const PRICE: u128 = 1001;
-            token_price_storage.set_price("abc".to_string(), 1001);
+            token_price_storage.set_price("abc".to_string(), PRICE);
             assert_eq!(
                 token_price_storage.get_latest_price("abc".to_string()),
                 Some((0, PRICE))
@@ -511,6 +511,10 @@ pub mod oracle_anchor {
         #[ink_e2e::test]
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             let constructor = TokenPriceStorageRef::new();
+            const PRICE: u128 = 1001;
+
+
+            
 
             let contract_acc_id = client
                 .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
@@ -519,7 +523,7 @@ pub mod oracle_anchor {
                 .account_id;
 
             let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
-                .call(|tps| tps.set_price("abc".to_string(), 1001));
+                .call(|tps| tps.set_price("abc".to_string(), PRICE));
 
             let _set_price_res = client
                 .call(&ink_e2e::alice(), set_price_message, 0, None)
@@ -535,7 +539,7 @@ pub mod oracle_anchor {
                 .expect("get failed");
 
             let price = get_price_res.return_value().expect("Value is None").1;
-            assert_eq!(price, 1001);
+            assert_eq!(price, PRICE);
 
             Ok(())
         }
