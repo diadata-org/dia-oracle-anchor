@@ -1,0 +1,62 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "e2etest" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  main:
+    name: Run check, test and lints
+    runs-on: ubuntu-latest
+    env:
+      CARGO_INCREMENTAL: 0
+      RUSTC_WRAPPER: sccache
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        
+      - name: Install  Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: 1.71-aarch64-apple-darwin
+            targets: wasm32-unknown-unknown
+            components: rustfmt, clippy
+
+      - name: Run format checks
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all
+
+      - name: Run linter
+        uses: actions-rs/cargo@v1
+        env:
+          RUSTC_WRAPPER: ""
+          RUSTC_WORKSPACE_WRAPPER: sccache
+        with:
+          command: clippy
+          args: --all-targets -- --no-deps -D warnings
+
+      - name: Run unit test suite
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: Install cargo-contract
+        shell: bash
+        run: |
+          rustup component add rust-src
+          cargo install cargo-contract --version 3.2.0
+
+      - name: Run tests for examples
+        shell: bash
+        run: |
+          pushd example
+          cargo contract build --release
+          cargo test --release
+          popd
