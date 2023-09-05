@@ -72,7 +72,7 @@ pub mod oracle_anchor {
             let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
 
             assert!(caller == tps.owner, "only owner can transfer ownership");
-            tps.owner = new_owner.clone();
+            tps.owner = new_owner;
             self.data.set(&tps);
             self.env().emit_event(OwnershipTransferred {
                 previous_owner: Some(caller),
@@ -87,7 +87,7 @@ pub mod oracle_anchor {
             let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
 
             assert!(caller == tps.owner, "only owner can set updater");
-            tps.updater = updater.clone();
+            tps.updater = updater;
             self.data.set(&tps);
             self.env().emit_event(UpdaterChanged {
                 old: Some(caller),
@@ -124,7 +124,13 @@ pub mod oracle_anchor {
 
         #[ink(message)]
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
-            self.data.get().unwrap().pairs.get(&pair)
+            self.data.get().unwrap().pairs.get(pair)
+        }
+    }
+
+    impl Default for TokenPriceStorage {
+        fn default() -> Self {
+            Self::new()
         }
     }
 
@@ -455,18 +461,38 @@ pub mod oracle_anchor {
         #[ink::test]
         fn set_price_works() {
             let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
-            token_price_storage.set_price("abc".to_string(), 1001);
+
+            const PRICE: u128 = 1001;
+            token_price_storage.set_price("abc".to_string(), PRICE);
             assert_eq!(
                 token_price_storage.get_latest_price("abc".to_string()),
-                Some((0, 1001))
+                Some((0, PRICE))
             );
 
             assert_token_price_changed_event(
                 &ink::env::test::recorded_events().collect::<Vec<_>>()[2],
                 "abc".to_string(),
-                1001,
+                PRICE,
                 0,
             );
+        }
+
+        #[ink::test]
+        fn set_price_multiple_works() {
+            let mut token_price_storage: TokenPriceStorage = TokenPriceStorage::new();
+
+            const PRICE: u128 = 1001;
+
+            token_price_storage.set_price("abc".to_string(), PRICE);
+
+            let mut latest_price = token_price_storage.get_latest_price("abc".to_string());
+            assert_eq!(latest_price, Some((0, PRICE)));
+
+            token_price_storage.set_price("abc".to_string(), PRICE + 10);
+
+            latest_price = token_price_storage.get_latest_price("abc".to_string());
+
+            assert_eq!(latest_price, Some((0, PRICE + 10)));
         }
 
         #[ink::test]
@@ -487,6 +513,46 @@ pub mod oracle_anchor {
             let account: AccountId = AccountId::from([0x2; 32]);
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
             token_price_storage.set_updater(AccountId::from([0x01; 32]));
+        }
+    }
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::*;
+        use ink_e2e::build_message;
+
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let constructor = TokenPriceStorageRef::new();
+            const PRICE: u128 = 1001;
+
+            let contract_acc_id = client
+                .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+                .call(|tps| tps.set_price("abc".to_string(), PRICE));
+
+            let _set_price_res = client
+                .call(&ink_e2e::alice(), set_price_message, 0, None)
+                .await
+                .expect("set failed");
+
+            let get_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+                .call(|tps| tps.get_latest_price("abc".to_string()));
+
+            let get_price_res = client
+                .call(&ink_e2e::alice(), get_price_message, 0, None)
+                .await
+                .expect("get failed");
+
+            let price = get_price_res.return_value().expect("Value is None").1;
+            assert_eq!(price, PRICE);
+
+            Ok(())
         }
     }
 }
