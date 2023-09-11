@@ -529,6 +529,7 @@ pub mod oracle_anchor {
         }
     }
     #[cfg(all(test, feature = "e2e-tests"))]
+    #[cfg_attr(all(test, feature = "e2e-tests"), allow(unused_imports))]
     mod e2e_tests {
         use super::*;
         use ink_e2e::build_message;
