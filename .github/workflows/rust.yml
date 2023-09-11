@@ -57,6 +57,8 @@ jobs:
 
       - name: Run cargo check example
         uses: actions-rs/cargo@v1
+        env:
+          CONTRACTS_NODE: ls # use dummy binary to avoid procmacro error
         with:
           command: check
           args: --all-targets --all-features --manifest-path example/Cargo.toml
