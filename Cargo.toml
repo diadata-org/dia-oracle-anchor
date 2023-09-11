@@ -4,3 +4,5 @@ members = [
     "contracts/oracle-getter",
     "contracts/oracle-setter",
 ]
+
+exclude = ["example/"]
