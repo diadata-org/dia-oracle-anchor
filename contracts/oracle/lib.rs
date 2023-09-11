@@ -5,34 +5,11 @@ pub use self::oracle_anchor::TokenPriceStorageRef;
 #[ink::contract]
 pub mod oracle_anchor {
     use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
-    #[ink::trait_definition]
-    pub trait OracleSetters {
-        #[ink(message)]
-        fn transfer_ownership(&mut self, new_owner: AccountId);
-
-        #[ink(message)]
-        fn set_updater(&mut self, updater: AccountId);
-
-        #[ink(message)]
-        fn set_price(&mut self, pair: String, price: u128);
-
-        #[ink(message)]
-        fn set_prices(&mut self, pairs: Vec<(String, u128)>);
-    }
-
-    #[ink::trait_definition]
-    pub trait OracleGetters {
-        #[ink(message)]
-        fn get_updater(&self) -> AccountId;
-
-        #[ink(message)]
-        fn get_latest_price(&self, pair: String) -> Option<(u64, u128)>;
-
-        #[ink(message)]
-        fn get_latest_prices(&self, pairs: Vec<String>) -> Vec<Option<(u64, u128)>>;
-    }
+    use dia_oracle_getter::OracleGetters;
+    use dia_oracle_setter::OracleSetters;
 
     #[ink::storage_item]
     struct TokenPriceStruct {
@@ -564,7 +541,7 @@ pub mod oracle_anchor {
             const PRICE: u128 = 1001;
 
             let contract_acc_id = client
-                .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("dia_oracle", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
