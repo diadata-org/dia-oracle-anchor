@@ -546,7 +546,7 @@ pub mod oracle_anchor {
                 .expect("instantiate failed")
                 .account_id;
 
-            let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+            let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id)
                 .call(|tps| tps.set_price("abc".to_string(), PRICE));
 
             let _set_price_res = client
@@ -554,7 +554,7 @@ pub mod oracle_anchor {
                 .await
                 .expect("set failed");
 
-            let get_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+            let get_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id)
                 .call(|tps| tps.get_latest_price("abc".to_string()));
 
             let get_price_res = client
