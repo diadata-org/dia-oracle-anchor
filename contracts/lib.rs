@@ -17,6 +17,9 @@ pub mod oracle_anchor {
 
         #[ink(message)]
         fn set_price(&mut self, pair: String, price: u128);
+
+        #[ink(message)]
+        fn set_prices(&mut self, pairs: Vec<(String, u128)>);
     }
 
     #[ink::trait_definition]
@@ -26,6 +29,9 @@ pub mod oracle_anchor {
 
         #[ink(message)]
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)>;
+
+        #[ink(message)]
+        fn get_latest_prices(&self, pairs: Vec<String>) -> Vec<Option<(u64, u128)>>;
     }
 
     #[ink::storage_item]
@@ -114,6 +120,26 @@ pub mod oracle_anchor {
                 timestamp: current_timestamp,
             });
         }
+
+        #[ink(message)]
+        fn set_prices(&mut self, pairs: Vec<(String, u128)>) {
+            let caller: AccountId = self.env().caller();
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+            assert!(caller == tps.updater, "only updater can set price");
+            let current_timestamp: u64 = self.env().block_timestamp();
+
+            // create new record
+            for (pair, price) in pairs {
+                tps.pairs.insert(pair.clone(), &(current_timestamp, price));
+                self.env().emit_event(TokenPriceChanged {
+                    pair,
+                    price,
+                    timestamp: current_timestamp,
+                });
+            }
+
+            self.data.set(&tps);
+        }
     }
 
     impl OracleGetters for TokenPriceStorage {
@@ -125,6 +151,16 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
             self.data.get().unwrap().pairs.get(pair)
+        }
+
+        #[ink(message)]
+        fn get_latest_prices(&self, pairs: Vec<String>) -> Vec<Option<(u64, u128)>> {
+            let mut result = Vec::new();
+            let data = self.data.get().unwrap();
+            for pair in pairs {
+                result.push(data.pairs.get(pair));
+            }
+            result
         }
     }
 
