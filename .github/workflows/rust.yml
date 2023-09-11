@@ -53,6 +53,12 @@ jobs:
         with:
           command: test
 
+      - name: Run cargo check example
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --all-targets --all-features --manifest-path example/Cargo.toml
+
           
 
   
