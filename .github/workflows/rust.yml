@@ -63,6 +63,13 @@ jobs:
           command: check
           args: --all-targets --all-features --manifest-path example/Cargo.toml
 
-          
+      - name: Run cargo contract check 
+        uses: actions-rs/cargo@v1
+        env:
+          CONTRACTS_NODE: ls # use dummy binary to avoid procmacro error
+        with:
+          command: contract check
+          args: --manifest-path contracts/oracle/Cargo.toml
+
 
   
