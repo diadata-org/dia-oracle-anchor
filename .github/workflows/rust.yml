@@ -70,7 +70,8 @@ jobs:
           cargo install cargo-contract &&
           cargo contract check --manifest-path contracts/oracle/Cargo.toml && 
           cargo contract build --manifest-path contracts/oracle/Cargo.toml &&
-
+          cargo contract check --manifest-path example/Cargo.toml &&
+          cargo contract check --manifest-path example/Cargo.toml 
 
 
 
