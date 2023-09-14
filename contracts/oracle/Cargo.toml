@@ -1,9 +1,8 @@
 [package]
-name = "dia-oracle-example"
+name = "dia-oracle"
 version = "0.1.0"
+authors = ["slymewl slymewl@pellartech.com"]
 edition = "2021"
-authors = ["nitin.gurbani@diadata.org"]
-
 
 [dependencies]
 ink = { version = "4.3.0", default-features = false }
@@ -14,19 +13,18 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2.6", default-features = false, features = [
     "derive",
 ], optional = true }
-dia-oracle-getter = { path = "../contracts/oracle-getter", default-features = false }
 
+dia-oracle-getter = { path = "../oracle-getter", default-features = false }
+dia-oracle-setter = { path = "../oracle-setter", default-features = false }
 
 [dev-dependencies]
 ink_e2e = "4.3.0"
-dia-oracle = { path = "../contracts/oracle", default-features = false }
-dia-oracle-setter = { path = "../contracts/oracle-setter", default-features = false }
 
 [lib]
-path = "example.rs"
+path = "lib.rs"
 
 [features]
 default = ["std"]
-std = ["ink/std", "scale/std", "scale-info/std", "dia-oracle-getter/std"]
+std = ["ink/std", "scale/std", "scale-info/std"]
 ink-as-dependency = []
 e2e-tests = []

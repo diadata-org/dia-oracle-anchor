@@ -15,7 +15,7 @@ To interact with contract on aleph zero UI, you can import deployed contract abo
 - choose `Add new contract`
 - choose `Use Onchain Contract`
 - enter `5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`
-- import file ./target/ink/blockchain.contract
+- import file ./target/ink/dia_oracle/dia_oracle.contract
 
 ## Bot
 

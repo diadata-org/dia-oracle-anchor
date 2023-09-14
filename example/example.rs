@@ -2,22 +2,19 @@
 
 #[ink::contract]
 mod oracleexample {
-    use blockchain::oracle_anchor::OracleGetters;
-    use blockchain::TokenPriceStorageRef;
+    use dia_oracle_getter::OracleGetters;
+    use ink::contract_ref;
     use ink::prelude::string::String;
 
-    #[derive(PartialEq, Eq)]
     #[ink(storage)]
     pub struct OracleExample {
-        oracle: TokenPriceStorageRef,
+        oracle: contract_ref!(OracleGetters),
     }
 
     impl OracleExample {
         #[ink(constructor)]
         pub fn new(oracle_address: AccountId) -> Self {
-            let oracle: TokenPriceStorageRef =
-                ink::env::call::FromAccountId::from_account_id(oracle_address);
-            Self { oracle }
+            Self { oracle: oracle_address.into() }
         }
 
         #[ink(message)]
@@ -27,10 +24,11 @@ mod oracleexample {
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
+    #[cfg_attr(all(test, feature = "e2e-tests"), allow(unused_imports))]
     mod e2e_tests {
         use super::*;
-        use blockchain::oracle_anchor::OracleSetters;
-        use blockchain::TokenPriceStorageRef;
+        use dia_oracle_setter::OracleSetters;
+        use dia_oracle::TokenPriceStorageRef;
         use ink_e2e::build_message;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -43,7 +41,7 @@ mod oracleexample {
 
             let constructor = TokenPriceStorageRef::new();
             let contract_acc_id = client
-                .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("dia_oracle", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;

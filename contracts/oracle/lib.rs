@@ -5,28 +5,11 @@ pub use self::oracle_anchor::TokenPriceStorageRef;
 #[ink::contract]
 pub mod oracle_anchor {
     use ink::prelude::string::String;
+    use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
-    #[ink::trait_definition]
-    pub trait OracleSetters {
-        #[ink(message)]
-        fn transfer_ownership(&mut self, new_owner: AccountId);
-
-        #[ink(message)]
-        fn set_updater(&mut self, updater: AccountId);
-
-        #[ink(message)]
-        fn set_price(&mut self, pair: String, price: u128);
-    }
-
-    #[ink::trait_definition]
-    pub trait OracleGetters {
-        #[ink(message)]
-        fn get_updater(&self) -> AccountId;
-
-        #[ink(message)]
-        fn get_latest_price(&self, pair: String) -> Option<(u64, u128)>;
-    }
+    use dia_oracle_getter::OracleGetters;
+    use dia_oracle_setter::OracleSetters;
 
     #[ink::storage_item]
     struct TokenPriceStruct {
@@ -114,6 +97,26 @@ pub mod oracle_anchor {
                 timestamp: current_timestamp,
             });
         }
+
+        #[ink(message)]
+        fn set_prices(&mut self, pairs: Vec<(String, u128)>) {
+            let caller: AccountId = self.env().caller();
+            let mut tps: TokenPriceStruct = self.data.get().expect("self.data not set");
+            assert!(caller == tps.updater, "only updater can set price");
+            let current_timestamp: u64 = self.env().block_timestamp();
+
+            // create new record
+            for (pair, price) in pairs {
+                tps.pairs.insert(pair.clone(), &(current_timestamp, price));
+                self.env().emit_event(TokenPriceChanged {
+                    pair,
+                    price,
+                    timestamp: current_timestamp,
+                });
+            }
+
+            self.data.set(&tps);
+        }
     }
 
     impl OracleGetters for TokenPriceStorage {
@@ -125,6 +128,16 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn get_latest_price(&self, pair: String) -> Option<(u64, u128)> {
             self.data.get().unwrap().pairs.get(pair)
+        }
+
+        #[ink(message)]
+        fn get_latest_prices(&self, pairs: Vec<String>) -> Vec<Option<(u64, u128)>> {
+            let mut result = Vec::new();
+            let data = self.data.get().unwrap();
+            for pair in pairs {
+                result.push(data.pairs.get(pair));
+            }
+            result
         }
     }
 
@@ -516,6 +529,7 @@ pub mod oracle_anchor {
         }
     }
     #[cfg(all(test, feature = "e2e-tests"))]
+    #[cfg_attr(all(test, feature = "e2e-tests"), allow(unused_imports))]
     mod e2e_tests {
         use super::*;
         use ink_e2e::build_message;
@@ -528,12 +542,12 @@ pub mod oracle_anchor {
             const PRICE: u128 = 1001;
 
             let contract_acc_id = client
-                .instantiate("blockchain", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("dia_oracle", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
-            let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+            let set_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id)
                 .call(|tps| tps.set_price("abc".to_string(), PRICE));
 
             let _set_price_res = client
@@ -541,7 +555,7 @@ pub mod oracle_anchor {
                 .await
                 .expect("set failed");
 
-            let get_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id.clone())
+            let get_price_message = build_message::<TokenPriceStorageRef>(contract_acc_id)
                 .call(|tps| tps.get_latest_price("abc".to_string()));
 
             let get_price_res = client
