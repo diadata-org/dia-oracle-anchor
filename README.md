@@ -85,5 +85,5 @@ These variables will be read from helm configs
   + docker run --rm -p 3000:3000 -d dia-oracle:latest
 
 ### Output
-- bot will auto feed price onchain
+- bot will auto feed price onchain with 18 decimals
 - if you want to track txn logs, http://${host}/api/v1/oracle?page_size=${page_size}&page_index=${page_index}
