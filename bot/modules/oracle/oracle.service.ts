@@ -136,21 +136,25 @@ export default class OracleService {
 
       const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
 
-      await this._oracleRepository.createTransactionLogs([
-        {
-          note: `Submit asset price: ${tokenPrice.Symbol}/USD = ${tokenPrice.Price}`,
-          event: TransactionEvent.SetAssetPrice,
-          hash: txnHash,
-          block_number: res.block?.block_number,
-          block_hash: res.block?.block_hash,
-          nonce: res.txn?.nonce,
-          from: res.txn?.signer,
-          to: res.txn.dest,
-          value: res.txn?.value,
-          data: res.txn?.data,
-          status: res.status
-        }
-      ])
+      try {
+        await this._oracleRepository.createTransactionLogs([
+          {
+            note: `Submit asset price: ${tokenPrice.Symbol}/USD = ${tokenPrice.Price}`,
+            event: TransactionEvent.SetAssetPrice,
+            hash: txnHash,
+            block_number: res.block?.block_number,
+            block_hash: res.block?.block_hash,
+            nonce: res.txn?.nonce,
+            from: res.txn?.signer,
+            to: res.txn.dest,
+            value: res.txn?.value,
+            data: res.txn?.data,
+            status: res.status
+          }
+        ])
+      } catch (err) {
+        this._logger.error(`Can not update transaction to db: ${String(err)}`)
+      }
 
       return {
         data: txnHash,
