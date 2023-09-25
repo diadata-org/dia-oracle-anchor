@@ -14,6 +14,7 @@ import OracleModel from '@modules/oracle/models/oracle.pg'
 import OracleRepository from '@modules/oracle/oracle.repository'
 import OracleController from '@modules/oracle/oracle.controller'
 import OracleRouter from '@modules/oracle/oracle.router'
+import { CONFIG } from '@config'
 
 export class IoCConfigLoader {
   static container = new Container()
@@ -49,8 +50,15 @@ export class IoCConfigLoader {
 
   private static registerQueues() {
     const oracleIndexer = this.container.resolve<OracleIndexer>(OracleIndexer)
-    oracleIndexer.initOracleAssetPriceSubmitter()
-    oracleIndexer.initOracleAssetPriceChecker()
+
+    const oracle_type = CONFIG.ORACLE_TYPE
+
+    if (oracle_type === 0) {
+      oracleIndexer.initOracleAssetPriceSubmitter()
+      oracleIndexer.initOracleAssetPriceChecker()
+    } else {
+      oracleIndexer.initOracleRandomnessOracleChecker()
+    }
   }
 
   private static async initQueues() {

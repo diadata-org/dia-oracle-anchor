@@ -42,8 +42,7 @@ mod randomoracleexample {
             //init Oracle contract
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
-            let previous_signature = vec![7, 8, 9];
-
+ 
             let constructor = RandomDataStorageRef::new();
             let contract_acc_id = client
                 .instantiate("dia_random_oracle", &ink_e2e::alice(), constructor, 0, None)
@@ -67,8 +66,7 @@ mod randomoracleexample {
                         "round1".to_string(),
                         randomness.clone(),
                         signature.clone(),
-                        previous_signature.clone(),
-                    )
+                     )
                 });
                 let _set_random_value_res = client
                 .call(&ink_e2e::alice(), set_random_value, 0, None)
