@@ -10,20 +10,18 @@ pub mod oracle_anchor {
 
     use dia_oracle_random_getter::RandomOracleGetter;
     use dia_oracle_random_setter::RandomOracleSetter;
- 
-    // type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
 
+    // type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
 
     #[derive(PartialEq, Debug, Clone, scale::Encode, scale::Decode)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ::ink::storage::traits::StorageLayout)
-    )]    pub struct RandomData {
+    )]
+    pub struct RandomData {
         randomness: Vec<u8>,
         signature: Vec<u8>,
-        previous_signature:  Vec<u8>,
     }
-
 
     #[ink::storage_item]
     pub struct RandomDataStruct {
@@ -46,8 +44,8 @@ pub mod oracle_anchor {
         new_owner: AccountId,
     }
 
-     #[ink(event)]
-    pub struct RandomRoundAdded {
+    #[ink(event)]
+    pub struct RandomnessPointAdded {
         #[ink(topic)]
         round: String,
         randomness: Vec<u8>,
@@ -93,28 +91,24 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn set_random_value(
-            &mut self,
-            round: String,
-            randomness: Vec<u8>,
-            signature: Vec<u8>,
-            previous_signature: Vec<u8>,
-        ) {
+        fn set_random_value(&mut self, round: String, randomness: Vec<u8>, signature: Vec<u8>) {
             let caller = Self::env().caller();
             let mut rds: RandomDataStruct = self.data.get().expect("self.data not set");
             assert!(caller == rds.updater, "only updater can set price");
 
             rds.last_round = round.clone();
 
-            let data = RandomData{randomness,signature,previous_signature};
-            rds.value
-                .insert(round, &data.clone());
+            let data = RandomData {
+                randomness,
+                signature,
+            };
+            rds.value.insert(round, &data.clone());
 
             self.data.set(&rds);
 
-            self.env().emit_event(RandomRoundAdded {
+            self.env().emit_event(RandomnessPointAdded {
                 round: rds.last_round,
-                randomness:data.randomness.clone(),
+                randomness: data.randomness.clone(),
             });
         }
     }
@@ -130,6 +124,18 @@ pub mod oracle_anchor {
         #[ink(message)]
         fn get_updater(&self) -> AccountId {
             self.data.get().unwrap().updater
+        }
+
+        #[ink(message)]
+        fn get_last_round(&self) -> String {
+            self.data.get().unwrap().last_round
+        }
+        #[ink(message)]
+        fn get_round(&self, round: String) -> Option<(Vec<u8>, Vec<u8>)> {
+            let rds: RandomDataStruct = self.data.get().expect("self.data not set");
+            rds.value
+                .get(round)
+                .map(|data| (data.randomness, data.signature))
         }
     }
 
@@ -226,21 +232,33 @@ pub mod oracle_anchor {
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
-            let previous_signature = vec![7, 8, 9];
 
-            contract.set_random_value(
+            contract.set_random_value("round1".to_string(), randomness.clone(), signature.clone());
+
+            assert_random_value_updated_event(
+                &ink::env::test::recorded_events().collect::<Vec<_>>()[2],
                 "round1".to_string(),
                 randomness.clone(),
-                signature.clone(),
-                previous_signature.clone(),
             );
-
-            assert_random_value_updated_event(&ink::env::test::recorded_events().collect::<Vec<_>>()[2],"round1".to_string(),randomness.clone());
 
             assert_eq!(
                 Some(randomness.clone()),
                 contract.get_random_value_for_round("round1".to_string())
             );
+        }
+
+        #[ink::test]
+        fn get_random_round() {
+            let mut contract = RandomDataStorage::new();
+
+            let randomness = vec![1, 2, 3];
+            let signature = vec![4, 5, 6];
+
+            contract.set_random_value("round1".to_string(), randomness.clone(), signature.clone());
+
+            let result = contract.get_round("round1".to_string());
+
+            assert_eq!(result, Some((randomness.clone(), signature.clone())));
         }
 
         #[ink::test]
@@ -251,14 +269,8 @@ pub mod oracle_anchor {
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
-            let previous_signature = vec![7, 8, 9];
 
-            contract.set_random_value(
-                "round1".to_string(),
-                randomness.clone(),
-                signature.clone(),
-                previous_signature.clone(),
-            );
+            contract.set_random_value("round1".to_string(), randomness.clone(), signature.clone());
         }
 
         #[ink::test]
@@ -270,13 +282,11 @@ pub mod oracle_anchor {
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
-            let previous_signature = vec![7, 8, 9];
 
             random_data_storage.set_random_value(
                 "round1".to_string(),
                 randomness.clone(),
                 signature.clone(),
-                previous_signature.clone(),
             );
         }
 
@@ -386,21 +396,19 @@ pub mod oracle_anchor {
         ) {
             let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
                 .expect("encountered invalid contract event data buffer");
-            if let Event::RandomRoundAdded(RandomRoundAdded {
-                round,
-                randomness,
-            }) = decoded_event
+            if let Event::RandomnessPointAdded(RandomnessPointAdded { round, randomness }) =
+                decoded_event
             {
                 assert_eq!(
                     round, expected_round,
-                    "encountered invalid RandomRoundAdded.round"
+                    "encountered invalid RandomnessPointAdded.round"
                 );
                 assert_eq!(
                     randomness, expected_randomness,
-                    "encountered invalid RandomRoundAdded.randomness"
+                    "encountered invalid RandomnessPointAdded.randomness"
                 );
             } else {
-                panic!("encountered unexpected event kind: expected a RandomRoundAdded event")
+                panic!("encountered unexpected event kind: expected a RandomnessPointAdded event")
             }
 
             fn encoded_into_hash<T>(entity: &T) -> Hash
@@ -426,14 +434,14 @@ pub mod oracle_anchor {
             let expected_topics: [Hash; 3] = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
-                    value: b"RandomDataStorage::RandomRoundAdded",
+                    value: b"RandomDataStorage::RandomnessPointAdded",
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::RandomRoundAdded::round",
+                    prefix: b"RandomDataStorage::RandomnessPointAdded::round",
                     value: &expected_round,
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::RandomRoundAdded::randomness",
+                    prefix: b"RandomDataStorage::RandomnessPointAdded::randomness",
                     value: &expected_randomness,
                 }),
             ];
@@ -537,7 +545,6 @@ pub mod oracle_anchor {
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
-            let previous_signature = vec![7, 8, 9];
 
             let contract_acc_id = client
                 .instantiate("dia_random_oracle", &ink_e2e::alice(), constructor, 0, None)
@@ -551,7 +558,6 @@ pub mod oracle_anchor {
                         "round1".to_string(),
                         randomness.clone(),
                         signature.clone(),
-                        previous_signature.clone(),
                     )
                 });
 

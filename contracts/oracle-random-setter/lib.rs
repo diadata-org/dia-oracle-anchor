@@ -13,13 +13,5 @@ pub trait RandomOracleSetter {
     fn set_updater(&mut self, updater: AccountId);
 
     #[ink(message)]
-    fn set_random_value(
-        &mut self,
-        round: String,
-        randomness: Vec<u8>,
-        signature: Vec<u8>,
-        previous_signature: Vec<u8>,
-    );
+    fn set_random_value(&mut self, round: String, randomness: Vec<u8>, signature: Vec<u8>);
 }
-
-

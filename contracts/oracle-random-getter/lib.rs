@@ -11,4 +11,10 @@ pub trait RandomOracleGetter {
 
     #[ink(message)]
     fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>>;
+
+    #[ink(message)]
+    fn get_round(&self, round: String) -> Option<(Vec<u8>, Vec<u8>)>;
+
+    #[ink(message)]
+    fn get_last_round(&self) -> String;
 }
