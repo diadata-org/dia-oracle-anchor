@@ -106,7 +106,7 @@ pub mod oracle_anchor {
 
             rds.last_round = round.clone();
 
-            let data = RandomData{randomness:randomness,signature:signature,previous_signature:previous_signature};
+            let data = RandomData{randomness,signature,previous_signature};
             rds.value
                 .insert(round, &data.clone());
 
