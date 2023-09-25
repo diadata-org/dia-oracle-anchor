@@ -4,7 +4,7 @@ pub use self::oracle_anchor::RandomDataStorageRef;
 
 #[ink::contract]
 pub mod oracle_anchor {
-     use ink::prelude::vec::Vec;
+    use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
     use dia_oracle_random_getter::RandomOracleGetter;
@@ -219,10 +219,7 @@ pub mod oracle_anchor {
         fn get_random_value_for_round_returns_none_if_round_does_not_exist() {
             let contract = RandomDataStorage::new();
 
-            assert_eq!(
-                None,
-                contract.get_random_value_for_round(1)
-            );
+            assert_eq!(None, contract.get_random_value_for_round(1));
         }
 
         #[ink::test]
@@ -282,11 +279,7 @@ pub mod oracle_anchor {
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
 
-            random_data_storage.set_random_value(
-                1,
-                randomness.clone(),
-                signature.clone(),
-            );
+            random_data_storage.set_random_value(1, randomness.clone(), signature.clone());
         }
 
         #[ink::test]
@@ -551,14 +544,8 @@ pub mod oracle_anchor {
                 .expect("instantiate failed")
                 .account_id;
 
-            let set_random_value =
-                build_message::<RandomDataStorageRef>(contract_acc_id).call(|rds| {
-                    rds.set_random_value(
-                        1,
-                        randomness.clone(),
-                        signature.clone(),
-                    )
-                });
+            let set_random_value = build_message::<RandomDataStorageRef>(contract_acc_id)
+                .call(|rds| rds.set_random_value(1, randomness.clone(), signature.clone()));
 
             let _set_random_value_res = client
                 .call(&ink_e2e::alice(), set_random_value, 0, None)

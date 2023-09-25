@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
- use ink::prelude::vec::Vec;
+use ink::prelude::vec::Vec;
 use ink::primitives::AccountId;
 
 #[ink::trait_definition]
