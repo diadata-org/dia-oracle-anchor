@@ -4,6 +4,9 @@ members = [
     "contracts/oracle-getter",
     "contracts/oracle-setter",
     "contracts/oracle-random",
+    "contracts/oracle-random-getter",
+    "contracts/oracle-random-setter",
+
 
 ]
 

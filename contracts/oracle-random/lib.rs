@@ -1,36 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::oracle_anchor::RandomDataStorageRef;
-use ink::prelude::string::String;
-use ink::prelude::vec::Vec;
-use ink::primitives::AccountId;
-
-#[ink::trait_definition]
-pub trait RandomOracleSetter {
-    #[ink(message)]
-    fn transfer_ownership(&mut self, new_owner: AccountId);
-
-    #[ink(message)]
-    fn set_updater(&mut self, updater: AccountId);
-
-    #[ink(message)]
-    fn set_random_value(
-        &mut self,
-        round: String,
-        randomness: Vec<u8>,
-        signature: Vec<u8>,
-        previous_signature: Vec<u8>,
-    );
-}
-
-#[ink::trait_definition]
-pub trait RandomOracleGetter {
-    #[ink(message)]
-    fn get_updater(&self) -> AccountId;
-
-    #[ink(message)]
-    fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>>;
-}
 
 #[ink::contract]
 pub mod oracle_anchor {
@@ -38,8 +8,8 @@ pub mod oracle_anchor {
     use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
-    use crate::RandomOracleGetter;
-    use crate::RandomOracleSetter;
+    use dia_oracle_random_getter::RandomOracleGetter;
+    use dia_oracle_random_setter::RandomOracleSetter;
 
     type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
 
@@ -261,7 +231,7 @@ pub mod oracle_anchor {
         fn set_random_value_can_only_be_called_by_the_updater() {
             let mut contract = RandomDataStorage::new();
             let caller = AccountId::from([0x01; 32]);
-            contract.set_updater(caller.clone());
+            contract.set_updater(caller);
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
