@@ -4,8 +4,7 @@ pub use self::oracle_anchor::RandomDataStorageRef;
 
 #[ink::contract]
 pub mod oracle_anchor {
-    use ink::prelude::string::String;
-    use ink::prelude::vec::Vec;
+     use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
     use dia_oracle_random_getter::RandomOracleGetter;
@@ -27,8 +26,8 @@ pub mod oracle_anchor {
     pub struct RandomDataStruct {
         owner: AccountId,
         updater: AccountId,
-        value: Mapping<String, RandomData>,
-        last_round: String,
+        value: Mapping<u64, RandomData>,
+        last_round: u64,
     }
 
     #[ink(storage)]
@@ -47,7 +46,7 @@ pub mod oracle_anchor {
     #[ink(event)]
     pub struct RandomnessPointAdded {
         #[ink(topic)]
-        round: String,
+        round: u64,
         randomness: Vec<u8>,
     }
 
@@ -91,12 +90,12 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn set_random_value(&mut self, round: String, randomness: Vec<u8>, signature: Vec<u8>) {
+        fn set_random_value(&mut self, round: u64, randomness: Vec<u8>, signature: Vec<u8>) {
             let caller = Self::env().caller();
             let mut rds: RandomDataStruct = self.data.get().expect("self.data not set");
             assert!(caller == rds.updater, "only updater can set price");
 
-            rds.last_round = round.clone();
+            rds.last_round = round;
 
             let data = RandomData {
                 randomness,
@@ -115,7 +114,7 @@ pub mod oracle_anchor {
 
     impl RandomOracleGetter for RandomDataStorage {
         #[ink(message)]
-        fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>> {
+        fn get_random_value_for_round(&self, round: u64) -> Option<Vec<u8>> {
             let rds: RandomDataStruct = self.data.get().expect("self.data not set");
 
             rds.value.get(round).map(|data| data.randomness)
@@ -127,11 +126,11 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn get_last_round(&self) -> String {
+        fn get_last_round(&self) -> u64 {
             self.data.get().unwrap().last_round
         }
         #[ink(message)]
-        fn get_round(&self, round: String) -> Option<(Vec<u8>, Vec<u8>)> {
+        fn get_round(&self, round: u64) -> Option<(Vec<u8>, Vec<u8>)> {
             let rds: RandomDataStruct = self.data.get().expect("self.data not set");
             rds.value
                 .get(round)
@@ -162,7 +161,7 @@ pub mod oracle_anchor {
                 owner: caller,
                 updater: caller,
                 value: Mapping::new(),
-                last_round: String::default(),
+                last_round: u64::default(),
             };
 
             let mut ldata = Lazy::new();
@@ -222,7 +221,7 @@ pub mod oracle_anchor {
 
             assert_eq!(
                 None,
-                contract.get_random_value_for_round("round1".to_string())
+                contract.get_random_value_for_round(1)
             );
         }
 
@@ -233,17 +232,17 @@ pub mod oracle_anchor {
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
 
-            contract.set_random_value("round1".to_string(), randomness.clone(), signature.clone());
+            contract.set_random_value(1, randomness.clone(), signature.clone());
 
             assert_random_value_updated_event(
                 &ink::env::test::recorded_events().collect::<Vec<_>>()[2],
-                "round1".to_string(),
+                1,
                 randomness.clone(),
             );
 
             assert_eq!(
                 Some(randomness.clone()),
-                contract.get_random_value_for_round("round1".to_string())
+                contract.get_random_value_for_round(1)
             );
         }
 
@@ -254,9 +253,9 @@ pub mod oracle_anchor {
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
 
-            contract.set_random_value("round1".to_string(), randomness.clone(), signature.clone());
+            contract.set_random_value(1, randomness.clone(), signature.clone());
 
-            let result = contract.get_round("round1".to_string());
+            let result = contract.get_round(1);
 
             assert_eq!(result, Some((randomness.clone(), signature.clone())));
         }
@@ -270,7 +269,7 @@ pub mod oracle_anchor {
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
 
-            contract.set_random_value("round1".to_string(), randomness.clone(), signature.clone());
+            contract.set_random_value(1, randomness.clone(), signature.clone());
         }
 
         #[ink::test]
@@ -284,7 +283,7 @@ pub mod oracle_anchor {
             let signature = vec![4, 5, 6];
 
             random_data_storage.set_random_value(
-                "round1".to_string(),
+                1,
                 randomness.clone(),
                 signature.clone(),
             );
@@ -391,7 +390,7 @@ pub mod oracle_anchor {
 
         fn assert_random_value_updated_event(
             event: &ink::env::test::EmittedEvent,
-            expected_round: String,
+            expected_round: u64,
             expected_randomness: Vec<u8>,
         ) {
             let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
@@ -555,7 +554,7 @@ pub mod oracle_anchor {
             let set_random_value =
                 build_message::<RandomDataStorageRef>(contract_acc_id).call(|rds| {
                     rds.set_random_value(
-                        "round1".to_string(),
+                        1,
                         randomness.clone(),
                         signature.clone(),
                     )
@@ -567,7 +566,7 @@ pub mod oracle_anchor {
                 .expect("set failed");
 
             let get_random_value_message = build_message::<RandomDataStorageRef>(contract_acc_id)
-                .call(|rds| rds.get_random_value_for_round("round1".to_string()));
+                .call(|rds| rds.get_random_value_for_round(1));
 
             let get_random_value_for_round_res = client
                 .call(&ink_e2e::alice(), get_random_value_message, 0, None)
