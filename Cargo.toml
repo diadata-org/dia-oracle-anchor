@@ -3,6 +3,8 @@ members = [
     "contracts/oracle",
     "contracts/oracle-getter",
     "contracts/oracle-setter",
+    "contracts/oracle-random",
+
 ]
 
 exclude = ["example/"]
