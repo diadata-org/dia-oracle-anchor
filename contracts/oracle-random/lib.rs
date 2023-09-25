@@ -10,8 +10,20 @@ pub mod oracle_anchor {
 
     use dia_oracle_random_getter::RandomOracleGetter;
     use dia_oracle_random_setter::RandomOracleSetter;
+ 
+    // type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
 
-    type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
+
+    #[derive(PartialEq, Debug, Clone, scale::Encode, scale::Decode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ::ink::storage::traits::StorageLayout)
+    )]    pub struct RandomData {
+        randomness: Vec<u8>,
+        signature: Vec<u8>,
+        previous_signature:  Vec<u8>,
+    }
+
 
     #[ink::storage_item]
     pub struct RandomDataStruct {
@@ -34,20 +46,19 @@ pub mod oracle_anchor {
         new_owner: AccountId,
     }
 
+     #[ink(event)]
+    pub struct RandomRoundAdded {
+        #[ink(topic)]
+        round: String,
+        randomness: Vec<u8>,
+    }
+
     #[ink(event)]
     pub struct UpdaterChanged {
         #[ink(topic)]
         old: Option<AccountId>,
         #[ink(topic)]
         new: AccountId,
-    }
-
-    #[ink(event)]
-    pub struct RandomValueUpdate {
-        #[ink(topic)]
-        pair: String,
-        price: u128,
-        timestamp: u64,
     }
 
     impl RandomOracleSetter for RandomDataStorage {
@@ -94,10 +105,17 @@ pub mod oracle_anchor {
             assert!(caller == rds.updater, "only updater can set price");
 
             rds.last_round = round.clone();
+
+            let data = RandomData{randomness:randomness,signature:signature,previous_signature:previous_signature};
             rds.value
-                .insert(round, &(randomness, signature, previous_signature));
+                .insert(round, &data.clone());
 
             self.data.set(&rds);
+
+            self.env().emit_event(RandomRoundAdded {
+                round: rds.last_round,
+                randomness:data.randomness.clone(),
+            });
         }
     }
 
@@ -106,11 +124,7 @@ pub mod oracle_anchor {
         fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>> {
             let rds: RandomDataStruct = self.data.get().expect("self.data not set");
 
-            if let Some(data) = rds.value.get(round) {
-                Some(data.0)
-            } else {
-                None
-            }
+            rds.value.get(round).map(|data| data.randomness)
         }
 
         #[ink(message)]
@@ -220,6 +234,8 @@ pub mod oracle_anchor {
                 signature.clone(),
                 previous_signature.clone(),
             );
+
+            assert_random_value_updated_event(&ink::env::test::recorded_events().collect::<Vec<_>>()[2],"round1".to_string(),randomness.clone());
 
             assert_eq!(
                 Some(randomness.clone()),
@@ -352,6 +368,73 @@ pub mod oracle_anchor {
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"RandomDataStorage::OwnershipTransferred::new_owner",
                     value: &expected_new,
+                }),
+            ];
+            for (n, (actual_topic, expected_topic)) in
+                event.topics.iter().zip(expected_topics).enumerate()
+            {
+                let topic: Hash = <Hash as scale::Decode>::decode(&mut &actual_topic[..])
+                    .expect("encountered invalid topic encoding");
+                assert_eq!(topic, expected_topic, "encountered invalid topic at {n}");
+            }
+        }
+
+        fn assert_random_value_updated_event(
+            event: &ink::env::test::EmittedEvent,
+            expected_round: String,
+            expected_randomness: Vec<u8>,
+        ) {
+            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
+                .expect("encountered invalid contract event data buffer");
+            if let Event::RandomRoundAdded(RandomRoundAdded {
+                round,
+                randomness,
+            }) = decoded_event
+            {
+                assert_eq!(
+                    round, expected_round,
+                    "encountered invalid RandomRoundAdded.round"
+                );
+                assert_eq!(
+                    randomness, expected_randomness,
+                    "encountered invalid RandomRoundAdded.randomness"
+                );
+            } else {
+                panic!("encountered unexpected event kind: expected a RandomRoundAdded event")
+            }
+
+            fn encoded_into_hash<T>(entity: &T) -> Hash
+            where
+                T: scale::Encode,
+            {
+                let mut result: Hash = Hash::CLEAR_HASH;
+                let len_result: usize = result.as_ref().len();
+                let encoded: Vec<u8> = entity.encode();
+                let len_encoded: usize = encoded.len();
+                if len_encoded <= len_result {
+                    result.as_mut()[..len_encoded].copy_from_slice(&encoded);
+                    return result;
+                }
+                let mut hash_output: [u8; 32] =
+                    <<Blake2x256 as HashOutput>::Type as Default>::default();
+                <Blake2x256 as CryptoHash>::hash(&encoded, &mut hash_output);
+                let copy_len: usize = core::cmp::min(hash_output.len(), len_result);
+                result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+                result
+            }
+
+            let expected_topics: [Hash; 3] = [
+                encoded_into_hash(&PrefixedValue {
+                    prefix: b"",
+                    value: b"RandomDataStorage::RandomRoundAdded",
+                }),
+                encoded_into_hash(&PrefixedValue {
+                    prefix: b"RandomDataStorage::RandomRoundAdded::round",
+                    value: &expected_round,
+                }),
+                encoded_into_hash(&PrefixedValue {
+                    prefix: b"RandomDataStorage::RandomRoundAdded::randomness",
+                    value: &expected_randomness,
                 }),
             ];
             for (n, (actual_topic, expected_topic)) in
