@@ -6,10 +6,7 @@ use ink::prelude::vec::Vec;
 use ink::primitives::AccountId;
 
 #[ink::trait_definition]
-pub trait RandomOracleTrait {
-    #[ink(message)]
-    fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>>;
-
+pub trait RandomOracleSetter {
     #[ink(message)]
     fn transfer_ownership(&mut self, new_owner: AccountId);
 
@@ -24,9 +21,15 @@ pub trait RandomOracleTrait {
         signature: Vec<u8>,
         previous_signature: Vec<u8>,
     );
+}
 
+#[ink::trait_definition]
+pub trait RandomOracleGetter {
     #[ink(message)]
     fn get_updater(&self) -> AccountId;
+
+    #[ink(message)]
+    fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>>;
 }
 
 #[ink::contract]
@@ -35,7 +38,8 @@ pub mod oracle_anchor {
     use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
-    use crate::RandomOracleTrait;
+    use crate::RandomOracleGetter;
+    use crate::RandomOracleSetter;
 
     type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
 
@@ -76,7 +80,7 @@ pub mod oracle_anchor {
         timestamp: u64,
     }
 
-    impl RandomOracleTrait for RandomDataStorage {
+    impl RandomOracleSetter for RandomDataStorage {
         #[ink(message)]
         fn transfer_ownership(&mut self, new_owner: AccountId) {
             let caller: AccountId = self.env().caller();
@@ -108,11 +112,6 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn get_updater(&self) -> AccountId {
-            self.data.get().unwrap().updater
-        }
-
-        #[ink(message)]
         fn set_random_value(
             &mut self,
             round: String,
@@ -130,7 +129,9 @@ pub mod oracle_anchor {
 
             self.data.set(&rds);
         }
+    }
 
+    impl RandomOracleGetter for RandomDataStorage {
         #[ink(message)]
         fn get_random_value_for_round(&self, round: String) -> Option<Vec<u8>> {
             let rds: RandomDataStruct = self.data.get().expect("self.data not set");
@@ -140,6 +141,11 @@ pub mod oracle_anchor {
             } else {
                 None
             }
+        }
+
+        #[ink(message)]
+        fn get_updater(&self) -> AccountId {
+            self.data.get().unwrap().updater
         }
     }
 
