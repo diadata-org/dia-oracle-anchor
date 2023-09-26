@@ -187,15 +187,24 @@ export default class OracleService {
       for (let index = 0; index < rounds.length; index++) {
         const round = rounds[index]
         const args = []
+
+        const roundsArr = []
+
+        const params: any = {}
+
         const { error, data: randomResult } = await this._externalProvider.getRandomness(round.toString())
 
         if (error) {
           throw new Error(`Error while getting random round: ${JSON.stringify(error)}`)
         }
-        args.push(Number(randomResult.round))
-        args.push(randomResult.randomness)
-        args.push(randomResult.signature)
 
+        roundsArr.push(Number(randomResult.round))
+
+        params.randomness = randomResult.randomness
+        params.previousSignature = randomResult.previous_signature
+        params.signature = randomResult.signature
+        args.push(roundsArr)
+        args.push(params)
         req.push(args)
       }
 

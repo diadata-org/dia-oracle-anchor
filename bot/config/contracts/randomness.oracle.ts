@@ -1,6 +1,6 @@
 export const RANDOM_ORACLE_ANCHOR_ABI = {
   source: {
-    hash: '0x067436aae566368ecbc6e35df53e36eb8f261d738bae6b7c946618aad205ac4b',
+    hash: '0x8fb2ec74c5e5eb76b8070ff12ac0c20924a7c63cabf509b4b4f67f7b90882309',
     language: 'ink! 4.3.0',
     compiler: 'rustc 1.71.1',
     build_info: {
@@ -226,17 +226,10 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
             }
           },
           {
-            label: 'randomness',
+            label: 'data',
             type: {
-              displayName: ['Vec'],
-              type: 3
-            }
-          },
-          {
-            label: 'signature',
-            type: {
-              displayName: ['Vec'],
-              type: 3
+              displayName: ['RandomData'],
+              type: 10
             }
           }
         ],
@@ -257,7 +250,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
             label: 'rounds',
             type: {
               displayName: ['Vec'],
-              type: 10
+              type: 11
             }
           }
         ],
@@ -289,7 +282,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 12
+          type: 13
         },
         selector: '0xc481e71f'
       },
@@ -302,7 +295,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 14
+          type: 15
         },
         selector: '0x8f3f836e'
       },
@@ -315,7 +308,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 15
+          type: 16
         },
         selector: '0x0d598b39'
       },
@@ -336,7 +329,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         payable: false,
         returnType: {
           displayName: ['ink', 'MessageResult'],
-          type: 16
+          type: 17
         },
         selector: '0xab691918'
       }
@@ -394,6 +387,15 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
                                         }
                                       },
                                       name: 'signature'
+                                    },
+                                    {
+                                      layout: {
+                                        leaf: {
+                                          key: '0xb1895189',
+                                          ty: 3
+                                        }
+                                      },
+                                      name: 'previous_signature'
                                     }
                                   ],
                                   name: 'RandomData'
@@ -607,17 +609,36 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       id: 10,
       type: {
         def: {
-          sequence: {
-            type: 11
+          composite: {
+            fields: [
+              {
+                name: 'randomness',
+                type: 3,
+                typeName: 'Vec<u8>'
+              },
+              {
+                name: 'signature',
+                type: 3,
+                typeName: 'Vec<u8>'
+              },
+              {
+                name: 'previous_signature',
+                type: 3,
+                typeName: 'Vec<u8>'
+              }
+            ]
           }
-        }
+        },
+        path: ['dia_oracle_random_type', 'RandomData']
       }
     },
     {
       id: 11,
       type: {
         def: {
-          tuple: [4, 3, 3]
+          sequence: {
+            type: 12
+          }
         }
       }
     },
@@ -625,12 +646,20 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       id: 12,
       type: {
         def: {
+          tuple: [4, 10]
+        }
+      }
+    },
+    {
+      id: 13,
+      type: {
+        def: {
           variant: {
             variants: [
               {
                 fields: [
                   {
-                    type: 13
+                    type: 14
                   }
                 ],
                 index: 0,
@@ -651,7 +680,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         params: [
           {
             name: 'T',
-            type: 13
+            type: 14
           },
           {
             name: 'E',
@@ -662,7 +691,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       }
     },
     {
-      id: 13,
+      id: 14,
       type: {
         def: {
           variant: {
@@ -693,7 +722,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       }
     },
     {
-      id: 14,
+      id: 15,
       type: {
         def: {
           variant: {
@@ -733,7 +762,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       }
     },
     {
-      id: 15,
+      id: 16,
       type: {
         def: {
           variant: {
@@ -773,7 +802,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       }
     },
     {
-      id: 16,
+      id: 17,
       type: {
         def: {
           variant: {
@@ -781,7 +810,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
               {
                 fields: [
                   {
-                    type: 17
+                    type: 18
                   }
                 ],
                 index: 0,
@@ -802,7 +831,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         params: [
           {
             name: 'T',
-            type: 17
+            type: 18
           },
           {
             name: 'E',
@@ -813,7 +842,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
       }
     },
     {
-      id: 17,
+      id: 18,
       type: {
         def: {
           variant: {
@@ -825,7 +854,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
               {
                 fields: [
                   {
-                    type: 18
+                    type: 10
                   }
                 ],
                 index: 1,
@@ -837,18 +866,10 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
         params: [
           {
             name: 'T',
-            type: 18
+            type: 10
           }
         ],
         path: ['Option']
-      }
-    },
-    {
-      id: 18,
-      type: {
-        def: {
-          tuple: [3, 3]
-        }
       }
     },
     {
