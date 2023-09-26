@@ -107,7 +107,7 @@ pub mod oracle_anchor {
             self.data.set(&rds);
 
             self.env().emit_event(RandomnessPointAdded {
-                round: round,
+                round,
                 randomness: data.randomness.clone(),
             });
         }
