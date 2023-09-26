@@ -84,18 +84,7 @@ pub mod oracle_anchor {
             let mut rds: RandomDataStruct = self.data.get().expect("self.data not set");
             assert!(caller == rds.updater, "only updater can set price");
 
-            if rds.latest_round < round {
-                rds.latest_round = round;
-            }
-
-            rds.value.insert(round, &data.clone());
-
-            self.data.set(&rds);
-
-            self.env().emit_event(RandomnessPointAdded {
-                round,
-                randomness: data.randomness,
-            });
+            self._set_random_value(round, data.clone(), &mut rds);
         }
 
         #[ink(message)]
@@ -105,21 +94,17 @@ pub mod oracle_anchor {
             assert!(caller == rds.updater, "only updater can set price");
 
             for (round, data) in rounds {
-                // let data = RandomData {
-                //     randomness,
-                //     signature,
-                //     previous_signature,
-                // };
-                rds.value.insert(round, &data.clone());
+                // rds.value.insert(round, &data.clone());
 
-                if rds.latest_round < round {
-                    rds.latest_round = round;
-                }
+                // if rds.latest_round < round {
+                //     rds.latest_round = round;
+                // }
 
-                self.env().emit_event(RandomnessPointAdded {
-                    round: rds.latest_round,
-                    randomness: data.randomness.clone(),
-                });
+                // self.env().emit_event(RandomnessPointAdded {
+                //     round: rds.latest_round,
+                //     randomness: data.randomness.clone(),
+                // });
+                self._set_random_value(round, data.clone(), &mut rds);
             }
 
             self.data.set(&rds);
@@ -180,6 +165,21 @@ pub mod oracle_anchor {
             ldata.set(&rds);
 
             Self { data: ldata }
+        }
+
+        fn _set_random_value(&mut self, round: u64, data: RandomData, rds: &mut RandomDataStruct) {
+            if rds.latest_round < round {
+                rds.latest_round = round;
+            }
+
+            rds.value.insert(round, &data.clone());
+
+            self.data.set(rds);
+
+            self.env().emit_event(RandomnessPointAdded {
+                round,
+                randomness: data.randomness,
+            });
         }
         #[ink(message)]
         pub fn code_hash(&self) -> Hash {

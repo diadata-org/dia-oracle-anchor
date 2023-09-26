@@ -2,7 +2,6 @@
 
 use ink::prelude::vec::Vec;
 
-
 #[derive(PartialEq, Debug, Clone, scale::Encode, scale::Decode)]
 #[cfg_attr(
     feature = "std",
@@ -13,4 +12,3 @@ pub struct RandomData {
     pub signature: Vec<u8>,
     pub previous_signature: Vec<u8>,
 }
- 

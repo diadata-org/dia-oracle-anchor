@@ -1,9 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+use dia_oracle_random_type::RandomData;
 use ink::prelude::vec::Vec;
 use ink::primitives::AccountId;
-use dia_oracle_random_type::RandomData;
-
 
 #[ink::trait_definition]
 pub trait RandomOracleGetter {
