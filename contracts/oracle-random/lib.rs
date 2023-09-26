@@ -10,7 +10,6 @@ pub mod oracle_anchor {
     use dia_oracle_random_getter::RandomOracleGetter;
     use dia_oracle_random_setter::RandomOracleSetter;
 
-    // type RandomData = (Vec<u8>, Vec<u8>, Vec<u8>);
 
     #[derive(PartialEq, Debug, Clone, scale::Encode, scale::Decode)]
     #[cfg_attr(
