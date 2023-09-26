@@ -14,6 +14,9 @@ scale-info = { version = "2.6", default-features = false, features = [
     "derive",
 ], optional = true }
 
+dia-oracle-random-type = { path = "../oracle-random-type", default-features = false }
+
+
 [dev-dependencies]
 ink_e2e = "4.3.0"
 
@@ -22,5 +25,5 @@ path = "lib.rs"
 
 [features]
 default = ["std"]
-std = ["ink/std", "scale/std", "scale-info/std"]
+std = ["ink/std", "scale/std", "scale-info/std","dia-oracle-random-type/std"]
 ink-as-dependency = []

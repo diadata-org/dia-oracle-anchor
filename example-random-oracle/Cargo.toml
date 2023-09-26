@@ -16,6 +16,9 @@ scale-info = { version = "2.6", default-features = false, features = [
 ], optional = true }
 
  dia-oracle-random-getter = { path = "../contracts/oracle-random-getter", default-features = false }
+ dia-oracle-random-type = { path = "../contracts/oracle-random-type", default-features = false }
+
+ 
 
 
 
@@ -30,6 +33,6 @@ path = "example.rs"
 
 [features]
 default = ["std"]
-std = ["ink/std", "scale/std", "scale-info/std",  "dia-oracle-random-getter/std"]
+std = ["ink/std", "scale/std", "scale-info/std",  "dia-oracle-random-getter/std","dia-oracle-random-type/std"]
 ink-as-dependency = []
 e2e-tests = []
