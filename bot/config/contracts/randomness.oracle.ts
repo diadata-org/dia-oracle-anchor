@@ -1,0 +1,912 @@
+export const RANDOM_ORACLE_ANCHOR_ABI = {
+  source: {
+    hash: '0x067436aae566368ecbc6e35df53e36eb8f261d738bae6b7c946618aad205ac4b',
+    language: 'ink! 4.3.0',
+    compiler: 'rustc 1.71.1',
+    build_info: {
+      build_mode: 'Debug',
+      cargo_contract_version: '3.2.0',
+      rust_toolchain: 'stable-aarch64-apple-darwin',
+      wasm_opt_settings: {
+        keep_debug_symbols: false,
+        optimization_passes: 'Z'
+      }
+    }
+  },
+  contract: {
+    name: 'dia-random-oracle',
+    version: '0.1.0',
+    authors: ['nnn-gif nitin.gurbani@diadata.org']
+  },
+  spec: {
+    constructors: [
+      {
+        args: [],
+        default: false,
+        docs: [],
+        label: 'new',
+        payable: false,
+        returnType: {
+          displayName: ['ink_primitives', 'ConstructorResult'],
+          type: 5
+        },
+        selector: '0x9bae9d5e'
+      }
+    ],
+    docs: [],
+    environment: {
+      accountId: {
+        displayName: ['AccountId'],
+        type: 0
+      },
+      balance: {
+        displayName: ['Balance'],
+        type: 20
+      },
+      blockNumber: {
+        displayName: ['BlockNumber'],
+        type: 21
+      },
+      chainExtension: {
+        displayName: ['ChainExtension'],
+        type: 22
+      },
+      hash: {
+        displayName: ['Hash'],
+        type: 9
+      },
+      maxEventTopics: 4,
+      timestamp: {
+        displayName: ['Timestamp'],
+        type: 4
+      }
+    },
+    events: [
+      {
+        args: [
+          {
+            docs: [],
+            indexed: true,
+            label: 'previous_owner',
+            type: {
+              displayName: ['Option'],
+              type: 19
+            }
+          },
+          {
+            docs: [],
+            indexed: true,
+            label: 'new_owner',
+            type: {
+              displayName: ['AccountId'],
+              type: 0
+            }
+          }
+        ],
+        docs: [],
+        label: 'OwnershipTransferred'
+      },
+      {
+        args: [
+          {
+            docs: [],
+            indexed: true,
+            label: 'round',
+            type: {
+              displayName: ['u64'],
+              type: 4
+            }
+          },
+          {
+            docs: [],
+            indexed: false,
+            label: 'randomness',
+            type: {
+              displayName: ['Vec'],
+              type: 3
+            }
+          }
+        ],
+        docs: [],
+        label: 'RandomnessPointAdded'
+      },
+      {
+        args: [
+          {
+            docs: [],
+            indexed: true,
+            label: 'old',
+            type: {
+              displayName: ['Option'],
+              type: 19
+            }
+          },
+          {
+            docs: [],
+            indexed: true,
+            label: 'new',
+            type: {
+              displayName: ['AccountId'],
+              type: 0
+            }
+          }
+        ],
+        docs: [],
+        label: 'UpdaterChanged'
+      }
+    ],
+    lang_error: {
+      displayName: ['ink', 'LangError'],
+      type: 7
+    },
+    messages: [
+      {
+        args: [],
+        default: false,
+        docs: [],
+        label: 'code_hash',
+        mutates: false,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 8
+        },
+        selector: '0xbd69cea7'
+      },
+      {
+        args: [
+          {
+            label: 'code_hash',
+            type: {
+              displayName: [],
+              type: 1
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'set_code',
+        mutates: true,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 5
+        },
+        selector: '0x694fb50f'
+      },
+      {
+        args: [
+          {
+            label: 'new_owner',
+            type: {
+              displayName: ['AccountId'],
+              type: 0
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'RandomOracleSetter::transfer_ownership',
+        mutates: true,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 5
+        },
+        selector: '0x5e7e722b'
+      },
+      {
+        args: [
+          {
+            label: 'updater',
+            type: {
+              displayName: ['AccountId'],
+              type: 0
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'RandomOracleSetter::set_updater',
+        mutates: true,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 5
+        },
+        selector: '0xbc8149cd'
+      },
+      {
+        args: [
+          {
+            label: 'round',
+            type: {
+              displayName: ['u64'],
+              type: 4
+            }
+          },
+          {
+            label: 'randomness',
+            type: {
+              displayName: ['Vec'],
+              type: 3
+            }
+          },
+          {
+            label: 'signature',
+            type: {
+              displayName: ['Vec'],
+              type: 3
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'RandomOracleSetter::set_random_value',
+        mutates: true,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 5
+        },
+        selector: '0x38998161'
+      },
+      {
+        args: [
+          {
+            label: 'rounds',
+            type: {
+              displayName: ['Vec'],
+              type: 10
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'RandomOracleSetter::set_random_values',
+        mutates: true,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 5
+        },
+        selector: '0x88f70796'
+      },
+      {
+        args: [
+          {
+            label: 'round',
+            type: {
+              displayName: ['u64'],
+              type: 4
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'RandomOracleGetter::get_random_value_for_round',
+        mutates: false,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 12
+        },
+        selector: '0xc481e71f'
+      },
+      {
+        args: [],
+        default: false,
+        docs: [],
+        label: 'RandomOracleGetter::get_updater',
+        mutates: false,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 14
+        },
+        selector: '0x8f3f836e'
+      },
+      {
+        args: [],
+        default: false,
+        docs: [],
+        label: 'RandomOracleGetter::get_latest_round',
+        mutates: false,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 15
+        },
+        selector: '0x0d598b39'
+      },
+      {
+        args: [
+          {
+            label: 'round',
+            type: {
+              displayName: ['u64'],
+              type: 4
+            }
+          }
+        ],
+        default: false,
+        docs: [],
+        label: 'RandomOracleGetter::get_round',
+        mutates: false,
+        payable: false,
+        returnType: {
+          displayName: ['ink', 'MessageResult'],
+          type: 16
+        },
+        selector: '0xab691918'
+      }
+    ]
+  },
+  storage: {
+    root: {
+      layout: {
+        struct: {
+          fields: [
+            {
+              layout: {
+                root: {
+                  layout: {
+                    struct: {
+                      fields: [
+                        {
+                          layout: {
+                            leaf: {
+                              key: '0x00000001',
+                              ty: 0
+                            }
+                          },
+                          name: 'owner'
+                        },
+                        {
+                          layout: {
+                            leaf: {
+                              key: '0x00000001',
+                              ty: 0
+                            }
+                          },
+                          name: 'updater'
+                        },
+                        {
+                          layout: {
+                            root: {
+                              layout: {
+                                struct: {
+                                  fields: [
+                                    {
+                                      layout: {
+                                        leaf: {
+                                          key: '0xb1895189',
+                                          ty: 3
+                                        }
+                                      },
+                                      name: 'randomness'
+                                    },
+                                    {
+                                      layout: {
+                                        leaf: {
+                                          key: '0xb1895189',
+                                          ty: 3
+                                        }
+                                      },
+                                      name: 'signature'
+                                    }
+                                  ],
+                                  name: 'RandomData'
+                                }
+                              },
+                              root_key: '0xb1895189'
+                            }
+                          },
+                          name: 'value'
+                        },
+                        {
+                          layout: {
+                            leaf: {
+                              key: '0x00000001',
+                              ty: 4
+                            }
+                          },
+                          name: 'latest_round'
+                        }
+                      ],
+                      name: 'RandomDataStruct'
+                    }
+                  },
+                  root_key: '0x00000001'
+                }
+              },
+              name: 'data'
+            }
+          ],
+          name: 'RandomDataStorage'
+        }
+      },
+      root_key: '0x00000000'
+    }
+  },
+  types: [
+    {
+      id: 0,
+      type: {
+        def: {
+          composite: {
+            fields: [
+              {
+                type: 1,
+                typeName: '[u8; 32]'
+              }
+            ]
+          }
+        },
+        path: ['ink_primitives', 'types', 'AccountId']
+      }
+    },
+    {
+      id: 1,
+      type: {
+        def: {
+          array: {
+            len: 32,
+            type: 2
+          }
+        }
+      }
+    },
+    {
+      id: 2,
+      type: {
+        def: {
+          primitive: 'u8'
+        }
+      }
+    },
+    {
+      id: 3,
+      type: {
+        def: {
+          sequence: {
+            type: 2
+          }
+        }
+      }
+    },
+    {
+      id: 4,
+      type: {
+        def: {
+          primitive: 'u64'
+        }
+      }
+    },
+    {
+      id: 5,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 6
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 6
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
+      }
+    },
+    {
+      id: 6,
+      type: {
+        def: {
+          tuple: []
+        }
+      }
+    },
+    {
+      id: 7,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                index: 1,
+                name: 'CouldNotReadInput'
+              }
+            ]
+          }
+        },
+        path: ['ink_primitives', 'LangError']
+      }
+    },
+    {
+      id: 8,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 9
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 9
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
+      }
+    },
+    {
+      id: 9,
+      type: {
+        def: {
+          composite: {
+            fields: [
+              {
+                type: 1,
+                typeName: '[u8; 32]'
+              }
+            ]
+          }
+        },
+        path: ['ink_primitives', 'types', 'Hash']
+      }
+    },
+    {
+      id: 10,
+      type: {
+        def: {
+          sequence: {
+            type: 11
+          }
+        }
+      }
+    },
+    {
+      id: 11,
+      type: {
+        def: {
+          tuple: [4, 3, 3]
+        }
+      }
+    },
+    {
+      id: 12,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 13
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 13
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
+      }
+    },
+    {
+      id: 13,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                index: 0,
+                name: 'None'
+              },
+              {
+                fields: [
+                  {
+                    type: 3
+                  }
+                ],
+                index: 1,
+                name: 'Some'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 3
+          }
+        ],
+        path: ['Option']
+      }
+    },
+    {
+      id: 14,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 0
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 0
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
+      }
+    },
+    {
+      id: 15,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 4
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 4
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
+      }
+    },
+    {
+      id: 16,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                fields: [
+                  {
+                    type: 17
+                  }
+                ],
+                index: 0,
+                name: 'Ok'
+              },
+              {
+                fields: [
+                  {
+                    type: 7
+                  }
+                ],
+                index: 1,
+                name: 'Err'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 17
+          },
+          {
+            name: 'E',
+            type: 7
+          }
+        ],
+        path: ['Result']
+      }
+    },
+    {
+      id: 17,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                index: 0,
+                name: 'None'
+              },
+              {
+                fields: [
+                  {
+                    type: 18
+                  }
+                ],
+                index: 1,
+                name: 'Some'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 18
+          }
+        ],
+        path: ['Option']
+      }
+    },
+    {
+      id: 18,
+      type: {
+        def: {
+          tuple: [3, 3]
+        }
+      }
+    },
+    {
+      id: 19,
+      type: {
+        def: {
+          variant: {
+            variants: [
+              {
+                index: 0,
+                name: 'None'
+              },
+              {
+                fields: [
+                  {
+                    type: 0
+                  }
+                ],
+                index: 1,
+                name: 'Some'
+              }
+            ]
+          }
+        },
+        params: [
+          {
+            name: 'T',
+            type: 0
+          }
+        ],
+        path: ['Option']
+      }
+    },
+    {
+      id: 20,
+      type: {
+        def: {
+          primitive: 'u128'
+        }
+      }
+    },
+    {
+      id: 21,
+      type: {
+        def: {
+          primitive: 'u32'
+        }
+      }
+    },
+    {
+      id: 22,
+      type: {
+        def: {
+          variant: {}
+        },
+        path: ['ink_env', 'types', 'NoChainExtension']
+      }
+    }
+  ],
+  version: '4'
+}

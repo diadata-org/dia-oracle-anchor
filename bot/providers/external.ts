@@ -34,6 +34,33 @@ export default class ExternalProvider {
     ]
   })
 
+  public readonly DRAND_API_INSTANCE = axios.create({
+    baseURL: `${CONFIG.MODULES.EXTERNAL.DRAND.API_ROOT}`,
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      Accept: 'application/json'
+    },
+    withCredentials: false,
+    timeout: 30000,
+    transformRequest: [
+      data => {
+        data = JSON.stringify(data)
+        return data
+      }
+    ],
+    transformResponse: [
+      data => {
+        try {
+          data = JSON.parse(data)
+          return data
+        } catch (error) {
+          this._logger.error(`Can not parse data: ${error}`)
+        }
+        return data
+      }
+    ]
+  })
+
   constructor(@inject(LLogger.name) _logger: LLogger) {
     this._logger = _logger
     this._initDiaDataApiInstance()
@@ -79,6 +106,22 @@ export default class ExternalProvider {
       }
     } catch (error) {
       this.requestErrorHandler('getAssetPrice', error)
+      return {
+        data: null,
+        error: error ?? 'unknown error'
+      }
+    }
+  }
+
+  public async getRandomness(round: string) {
+    try {
+      const resp = await this.DRAND_API_INSTANCE.get(`/public/${round}`)
+      return {
+        data: resp!.data,
+        error: null
+      }
+    } catch (error) {
+      this.requestErrorHandler('getLatestRandomness', error)
       return {
         data: null,
         error: error ?? 'unknown error'

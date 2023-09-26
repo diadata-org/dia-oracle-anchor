@@ -76,4 +76,25 @@ export default class OracleIndexer {
       }
     }, 1000 * sleepSeconds) // frequencySeconds seconds
   }
+
+  public initOracleRandomnessOracleChecker() {
+    const sleepSeconds = Number(CONFIG.MODULES.ORACLE_RANDOMNESS.SLEEP_SECONDS)
+    setInterval(async () => {
+      try {
+        await this._jobProvider.execute(
+          {
+            parent: 'oracle',
+            id: 'oracle_randomness_submitter_job',
+            ttl: 60 * 30,
+            data: []
+          },
+          async () => {
+            await this._oracleService.checkIfNeedToSubmitRandomnessUpdate(trim(''))
+          }
+        )
+      } catch (err) {
+        this._lLogger.error(`Error while adding job: ${err}`)
+      }
+    }, 1000 * sleepSeconds) // frequencySeconds seconds
+  }
 }

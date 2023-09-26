@@ -6,7 +6,7 @@ import NotificationProvider from '@providers/notification'
 import { inject, injectable } from 'inversify'
 import moment from 'moment'
 import OracleRepository from './oracle.repository'
-import { PRECISION_DECIMALS, TransactionEvent } from '@config/constants'
+import { PRECISION_DECIMALS, TransactionEvent, RandomOracleEvent } from '@config/constants'
 import { PaginateRequest } from 'oracle-request'
 import toPaginate from '@helpers/toPaginate'
 
@@ -166,6 +166,131 @@ export default class OracleService {
       this._notificationProvider.sendTaskRunFailed({
         error: String(err),
         task_name: 'submitAssetPrice'
+      })
+
+      return {
+        data: null,
+        error: err
+      }
+    }
+  }
+
+  public async submitRandomRound(rounds: number[]) {
+    try {
+      this._logger.info(`Submit Total  Random Round Data Points : ${rounds.length}`)
+      const configs = CONFIG.MODULES.ORACLE_RANDOMNESS.CONTRACTS.ALEPH_ZERO.RANDOMNESS_ORACLE
+      const api = await this._alephZeroProvider.getHttpApi()
+      const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
+
+      const req: any = []
+
+      for (let index = 0; index < rounds.length; index++) {
+        const round = rounds[index]
+        const args = []
+        const { error, data: randomResult } = await this._externalProvider.getRandomness(round.toString())
+
+        if (error) {
+          throw new Error(`Error while getting random round: ${JSON.stringify(error)}`)
+        }
+        args.push(Number(randomResult.round))
+        args.push(randomResult.randomness)
+        args.push(randomResult.signature)
+
+        req.push(args)
+      }
+
+      const result = await this._alephZeroProvider.contractTx(
+        api,
+        this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
+        contract,
+        'RandomOracleSetter::set_random_values',
+        {},
+        [req]
+      )
+
+      const txnHash = result.result?.toHex()
+
+      const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
+
+      try {
+        await this._oracleRepository.createTransactionLogs([
+          {
+            note: `Submit Random round price: ${rounds}`,
+            event: RandomOracleEvent.RandomnessPointAdded,
+            hash: txnHash,
+            block_number: res.block?.block_number,
+            block_hash: res.block?.block_hash,
+            nonce: res.txn?.nonce,
+            from: res.txn?.signer,
+            to: res.txn.dest,
+            value: res.txn?.value,
+            data: res.txn?.data,
+            status: res.status
+          }
+        ])
+      } catch (err) {
+        this._logger.error(`Can not update transaction to db: ${String(err)}`)
+      }
+
+      return {
+        data: txnHash,
+        error: null
+      }
+    } catch (err) {
+      this._logger.error(`Can not submit random data: ${String(err)}`)
+
+      this._notificationProvider.sendTaskRunFailed({
+        error: String(err),
+        task_name: 'submitRandomRound'
+      })
+
+      return {
+        data: null,
+        error: err
+      }
+    }
+  }
+
+  public async checkIfNeedToSubmitRandomnessUpdate(chain: string) {
+    try {
+      this._logger.info(`Check if new round has to be added: ${chain}`)
+      const configs = CONFIG.MODULES.ORACLE_RANDOMNESS.CONTRACTS.ALEPH_ZERO.RANDOMNESS_ORACLE
+      const api = await this._alephZeroProvider.getHttpApi()
+      const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
+
+      const { error, data: latestRandomnessRound } = await this._externalProvider.getRandomness('0')
+
+      if (error) {
+        throw new Error(`Error while getting random round: ${JSON.stringify(error)}`)
+      }
+      const lastRound = await this._alephZeroProvider.contractQuery(
+        api,
+        contract.address.toHex(),
+        contract,
+        'RandomOracleGetter::get_latest_round',
+        {},
+        []
+      )
+
+      const lastRoundFromContract = Number(String((lastRound.output?.toJSON() as any)?.ok ?? '0'))
+
+      if (isNaN(lastRoundFromContract) || lastRoundFromContract === 0) {
+        const startRound = Number(latestRandomnessRound.round) - 5
+        const rounds = Array.from({ length: latestRandomnessRound.round - startRound + 1 }, (_, index) => startRound + index)
+        await this.submitRandomRound(rounds)
+        return
+      }
+
+      const currentRound = Number(latestRandomnessRound.round)
+
+      const rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
+      await this.submitRandomRound(rounds)
+    } catch (err) {
+      this._logger.error(`Can not check asset price: ${String(err)}`)
+
+      this._notificationProvider.sendTaskRunFailed({
+        error: String(err),
+        task_name: 'checkIfNeedToSubmitRandomnessUpdate'
       })
 
       return {

@@ -8,6 +8,10 @@ export enum TransactionEvent {
   SetAssetPrice = 'SetAssetPrice'
 }
 
+export enum RandomOracleEvent {
+  RandomnessPointAdded = 'RandomnessPointAdded'
+}
+
 export enum TransactionStatus {
   Pending = 'Pending',
   Success = 'Success',
