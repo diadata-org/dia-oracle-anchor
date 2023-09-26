@@ -6,6 +6,7 @@ mod randomoracleexample {
     use ink::contract_ref;
     use ink::prelude::vec::Vec;
 
+
     #[ink(storage)]
     pub struct RandomOracleExample {
         oracle: contract_ref!(RandomOracleGetter),
@@ -32,6 +33,8 @@ mod randomoracleexample {
         use dia_oracle_random_setter::RandomOracleSetter;
         use dia_random_oracle::RandomDataStorageRef;
         use ink_e2e::build_message;
+        use dia_oracle_random_type::RandomData;
+
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -40,6 +43,14 @@ mod randomoracleexample {
             //init Oracle contract
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
+            let previous_signature = vec![4, 5, 6];
+
+            let r_data = RandomData {
+                randomness,
+                signature,
+                previous_signature,
+            };
+
 
             let constructor = RandomDataStorageRef::new();
             let contract_acc_id = client
@@ -65,7 +76,7 @@ mod randomoracleexample {
                 .account_id;
 
             let set_random_value = build_message::<RandomDataStorageRef>(contract_acc_id.clone())
-                .call(|rds| rds.set_random_value(1, randomness.clone(), signature.clone()));
+                .call(|rds| rds.set_random_value(1, r_data.clone()));
             let _set_random_value_res = client
                 .call(&ink_e2e::alice(), set_random_value, 0, None)
                 .await
@@ -82,7 +93,7 @@ mod randomoracleexample {
             let value = get_random_value_for_round_res
                 .return_value()
                 .expect("Value is None");
-            assert_eq!(value, randomness);
+            assert_eq!(value, r_data.clone().randomness);
 
             // get price for oracle from example contract
 
@@ -98,7 +109,7 @@ mod randomoracleexample {
             let latest_round = get_random_res_example
                 .return_value()
                 .expect("Value is None");
-            assert_eq!(latest_round, randomness);
+            assert_eq!(latest_round, r_data.clone().randomness);
 
             Ok(())
         }
