@@ -1,5 +1,5 @@
 [package]
-name = "dia-random-oracle"
+name = "dia-oracle-random-type"
 version = "0.1.0"
 authors = ["nnn-gif nitin.gurbani@diadata.org"]
 edition = "2021"
@@ -14,11 +14,7 @@ scale-info = { version = "2.6", default-features = false, features = [
     "derive",
 ], optional = true }
 
-dia-oracle-random-getter = { path = "../oracle-random-getter", default-features = false }
-dia-oracle-random-setter = { path = "../oracle-random-setter", default-features = false }
-dia-oracle-random-type = { path = "../oracle-random-type", default-features = false }
-
-
+ 
 
 [dev-dependencies]
 ink_e2e = "4.3.0"
@@ -30,4 +26,3 @@ path = "lib.rs"
 default = ["std"]
 std = ["ink/std", "scale/std", "scale-info/std"]
 ink-as-dependency = []
-e2e-tests = []
