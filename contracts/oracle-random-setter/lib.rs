@@ -13,4 +13,7 @@ pub trait RandomOracleSetter {
 
     #[ink(message)]
     fn set_random_value(&mut self, round: u64, randomness: Vec<u8>, signature: Vec<u8>);
+
+    #[ink(message)]
+    fn set_random_values(&mut self, rounds: Vec<(u64, Vec<u8>, Vec<u8>)>);
 }

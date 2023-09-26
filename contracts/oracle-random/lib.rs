@@ -27,7 +27,7 @@ pub mod oracle_anchor {
         owner: AccountId,
         updater: AccountId,
         value: Mapping<u64, RandomData>,
-        last_round: u64,
+        latest_round: u64,
     }
 
     #[ink(storage)]
@@ -95,7 +95,9 @@ pub mod oracle_anchor {
             let mut rds: RandomDataStruct = self.data.get().expect("self.data not set");
             assert!(caller == rds.updater, "only updater can set price");
 
-            rds.last_round = round;
+            if rds.latest_round < round {
+                rds.latest_round = round;
+            }
 
             let data = RandomData {
                 randomness,
@@ -106,9 +108,35 @@ pub mod oracle_anchor {
             self.data.set(&rds);
 
             self.env().emit_event(RandomnessPointAdded {
-                round: rds.last_round,
+                round: round,
                 randomness: data.randomness.clone(),
             });
+        }
+
+        #[ink(message)]
+        fn set_random_values(&mut self, rounds: Vec<(u64, Vec<u8>, Vec<u8>)>) {
+            let caller: AccountId = self.env().caller();
+            let mut rds: RandomDataStruct = self.data.get().expect("self.data not set");
+            assert!(caller == rds.updater, "only updater can set price");
+
+            for (round, randomness, signature) in rounds {
+                let data = RandomData {
+                    randomness,
+                    signature,
+                };
+                rds.value.insert(round, &data.clone());
+
+                if rds.latest_round < round {
+                    rds.latest_round = round;
+                }
+
+                self.env().emit_event(RandomnessPointAdded {
+                    round: rds.latest_round,
+                    randomness: data.randomness.clone(),
+                });
+            }
+
+            self.data.set(&rds);
         }
     }
 
@@ -126,8 +154,8 @@ pub mod oracle_anchor {
         }
 
         #[ink(message)]
-        fn get_last_round(&self) -> u64 {
-            self.data.get().unwrap().last_round
+        fn get_latest_round(&self) -> u64 {
+            self.data.get().unwrap().latest_round
         }
         #[ink(message)]
         fn get_round(&self, round: u64) -> Option<(Vec<u8>, Vec<u8>)> {
@@ -161,7 +189,7 @@ pub mod oracle_anchor {
                 owner: caller,
                 updater: caller,
                 value: Mapping::new(),
-                last_round: u64::default(),
+                latest_round: u64::default(),
             };
 
             let mut ldata = Lazy::new();
@@ -186,6 +214,7 @@ pub mod oracle_anchor {
             ink::env::debug_println!("Switched code hash to {:?}.", code_hash);
         }
     }
+
     #[cfg(test)]
     mod tests {
         use ink::{
@@ -255,6 +284,26 @@ pub mod oracle_anchor {
             let result = contract.get_round(1);
 
             assert_eq!(result, Some((randomness.clone(), signature.clone())));
+        }
+
+        #[ink::test]
+        fn set_multiple_random_round() {
+            let mut contract = RandomDataStorage::new();
+
+            let test_rounds = vec![
+                (1, vec![2, 2, 3], vec![1, 2, 3]),
+                (2, vec![1, 2, 3], vec![4, 5, 6]),
+                (4, vec![1, 2, 3], vec![4, 5, 6]),
+                (3, vec![1, 2, 3], vec![4, 5, 6]),
+            ];
+
+            contract.set_random_values(test_rounds);
+
+            let result = contract.get_round(1);
+
+            let latest_round = contract.get_latest_round();
+            assert_eq!(latest_round, 4);
+            assert_eq!(result, Some((vec![2, 2, 3], vec![1, 2, 3])));
         }
 
         #[ink::test]
