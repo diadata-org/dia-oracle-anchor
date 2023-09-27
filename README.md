@@ -73,6 +73,11 @@ These variables will be read from helm configs
         <td>120</td>
         <td>How often to check DEVIATION_PERMILLE, store new price if need</td>
     </tr>
+        <tr>
+        <td>ORACLE_TYPE</td>
+        <td>0</td>
+        <td>Type of oracle For Pricing update 1, and for Randomness update 2</td>
+    </tr>
 </table>
 
 > Note: these values are just used for testnet
