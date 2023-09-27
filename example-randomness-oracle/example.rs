@@ -54,7 +54,7 @@ mod randomoracleexample {
 
             let constructor = RandomnessOracleRef::new();
             let contract_acc_id = client
-                .instantiate("dia_random_oracle", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("dia_randomness_oracle", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;

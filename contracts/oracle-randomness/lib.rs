@@ -616,6 +616,8 @@ pub mod oracle_anchor {
             }
         }
     }
+
+ 
     #[cfg(all(test, feature = "e2e-tests"))]
     #[cfg_attr(all(test, feature = "e2e-tests"), allow(unused_imports))]
     mod e2e_tests {
@@ -633,7 +635,7 @@ pub mod oracle_anchor {
             let previous_signature = vec![4, 5, 6];
 
             let contract_acc_id = client
-                .instantiate("dia_random_oracle", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("dia_randomness_oracle", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
