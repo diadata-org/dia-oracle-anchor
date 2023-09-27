@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::oracle_anchor::RandomDataStorageRef;
+pub use self::oracle_anchor::RandomnessOracleRef;
 
 #[ink::contract]
 pub mod oracle_anchor {
@@ -20,7 +20,7 @@ pub mod oracle_anchor {
     }
 
     #[ink(storage)]
-    pub struct RandomDataStorage {
+    pub struct RandomnessOracle {
         data: Lazy<RandomDataStruct, ManualKey<0x1>>,
     }
 
@@ -47,7 +47,7 @@ pub mod oracle_anchor {
         new: AccountId,
     }
 
-    impl RandomOracleSetter for RandomDataStorage {
+    impl RandomOracleSetter for RandomnessOracle {
         #[ink(message)]
         fn transfer_ownership(&mut self, new_owner: AccountId) {
             let caller: AccountId = self.env().caller();
@@ -111,7 +111,7 @@ pub mod oracle_anchor {
         }
     }
 
-    impl RandomOracleGetter for RandomDataStorage {
+    impl RandomOracleGetter for RandomnessOracle {
         #[ink(message)]
         fn get_random_value_for_round(&self, round: u64) -> Option<Vec<u8>> {
             let rds: RandomDataStruct = self.data.get().expect("self.data not set");
@@ -135,13 +135,13 @@ pub mod oracle_anchor {
         }
     }
 
-    impl Default for RandomDataStorage {
+    impl Default for RandomnessOracle {
         fn default() -> Self {
             Self::new()
         }
     }
 
-    impl RandomDataStorage {
+    impl RandomnessOracle {
         #[ink(constructor)]
         pub fn new() -> Self {
             let caller: AccountId = Self::env().caller();
@@ -230,14 +230,14 @@ pub mod oracle_anchor {
 
         #[ink::test]
         fn get_random_value_for_round_returns_none_if_round_does_not_exist() {
-            let contract = RandomDataStorage::new();
+            let contract = RandomnessOracle::new();
 
             assert_eq!(None, contract.get_random_value_for_round(1));
         }
 
         #[ink::test]
         fn get_random_value_for_round_returns_randomness_if_round_exists() {
-            let mut contract = RandomDataStorage::new();
+            let mut contract = RandomnessOracle::new();
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
@@ -265,7 +265,7 @@ pub mod oracle_anchor {
 
         #[ink::test]
         fn get_random_round() {
-            let mut contract = RandomDataStorage::new();
+            let mut contract = RandomnessOracle::new();
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
@@ -285,7 +285,7 @@ pub mod oracle_anchor {
 
         #[ink::test]
         fn set_multiple_random_round() {
-            let mut contract = RandomDataStorage::new();
+            let mut contract = RandomnessOracle::new();
 
             let test_rounds = vec![
                 (
@@ -340,7 +340,7 @@ pub mod oracle_anchor {
 
         #[ink::test]
         fn set_random_value_can_only_be_called_by_the_updater() {
-            let mut contract = RandomDataStorage::new();
+            let mut contract = RandomnessOracle::new();
             let caller = AccountId::from([0x01; 32]);
             contract.set_updater(caller);
 
@@ -359,7 +359,7 @@ pub mod oracle_anchor {
         #[ink::test]
         #[should_panic]
         fn set_random_value_panic() {
-            let mut random_data_storage: RandomDataStorage = RandomDataStorage::new();
+            let mut random_data_storage: RandomnessOracle = RandomnessOracle::new();
             // change caller
             let account: AccountId = AccountId::from([0x2; 32]);
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
@@ -378,7 +378,7 @@ pub mod oracle_anchor {
         #[ink::test]
         #[should_panic]
         fn set_updater_panic() {
-            let mut random_data_storage: RandomDataStorage = RandomDataStorage::new();
+            let mut random_data_storage: RandomnessOracle = RandomnessOracle::new();
             // change caller
             let account: AccountId = AccountId::from([0x2; 32]);
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
@@ -387,7 +387,7 @@ pub mod oracle_anchor {
 
         #[ink::test]
         fn transfer_ownership_works() {
-            let mut rds: RandomDataStorage = RandomDataStorage::new();
+            let mut rds: RandomnessOracle = RandomnessOracle::new();
             rds.transfer_ownership(AccountId::from([0x02; 32]));
             assert_eq!(
                 rds.data.get().unwrap().owner,
@@ -405,7 +405,7 @@ pub mod oracle_anchor {
                 AccountId::from([0x02; 32]),
             );
         }
-        type Event = <RandomDataStorage as ::ink::reflect::ContractEventBase>::Type;
+        type Event = <RandomnessOracle as ::ink::reflect::ContractEventBase>::Type;
 
         fn assert_transfer_ownership_event(
             event: &ink::env::test::EmittedEvent,
@@ -454,14 +454,14 @@ pub mod oracle_anchor {
             let expected_topics: [Hash; 3] = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
-                    value: b"RandomDataStorage::OwnershipTransferred",
+                    value: b"RandomnessOracle::OwnershipTransferred",
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::OwnershipTransferred::previous_owner",
+                    prefix: b"RandomnessOracle::OwnershipTransferred::previous_owner",
                     value: &expected_old,
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::OwnershipTransferred::new_owner",
+                    prefix: b"RandomnessOracle::OwnershipTransferred::new_owner",
                     value: &expected_new,
                 }),
             ];
@@ -519,14 +519,14 @@ pub mod oracle_anchor {
             let expected_topics: [Hash; 3] = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
-                    value: b"RandomDataStorage::RandomnessPointAdded",
+                    value: b"RandomnessOracle::RandomnessPointAdded",
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::RandomnessPointAdded::round",
+                    prefix: b"RandomnessOracle::RandomnessPointAdded::round",
                     value: &expected_round,
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::RandomnessPointAdded::randomness",
+                    prefix: b"RandomnessOracle::RandomnessPointAdded::randomness",
                     value: &expected_randomness,
                 }),
             ];
@@ -541,7 +541,7 @@ pub mod oracle_anchor {
 
         #[ink::test]
         fn set_updater_works() {
-            let mut random_data_storage: RandomDataStorage = RandomDataStorage::new();
+            let mut random_data_storage: RandomnessOracle = RandomnessOracle::new();
             random_data_storage.set_updater(AccountId::from([0x02; 32]));
             assert_eq!(
                 random_data_storage.get_updater(),
@@ -596,14 +596,14 @@ pub mod oracle_anchor {
             let expected_topics: [Hash; 3] = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
-                    value: b"RandomDataStorage::UpdaterChanged",
+                    value: b"RandomnessOracle::UpdaterChanged",
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::UpdaterChanged::old",
+                    prefix: b"RandomnessOracle::UpdaterChanged::old",
                     value: &expected_old,
                 }),
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"RandomDataStorage::UpdaterChanged::new",
+                    prefix: b"RandomnessOracle::UpdaterChanged::new",
                     value: &expected_new,
                 }),
             ];
@@ -626,7 +626,7 @@ pub mod oracle_anchor {
 
         #[ink_e2e::test]
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = RandomDataStorageRef::new();
+            let constructor = RandomnessOracleRef::new();
 
             let randomness = vec![1, 2, 3];
             let signature = vec![4, 5, 6];
@@ -643,7 +643,7 @@ pub mod oracle_anchor {
                 previous_signature,
             };
 
-            let set_random_value = build_message::<RandomDataStorageRef>(contract_acc_id)
+            let set_random_value = build_message::<RandomnessOracleRef>(contract_acc_id)
                 .call(|rds| rds.set_random_value(1, r_data.clone()));
 
             let _set_random_value_res = client
@@ -651,7 +651,7 @@ pub mod oracle_anchor {
                 .await
                 .expect("set failed");
 
-            let get_random_value_message = build_message::<RandomDataStorageRef>(contract_acc_id)
+            let get_random_value_message = build_message::<RandomnessOracleRef>(contract_acc_id)
                 .call(|rds| rds.get_random_value_for_round(1));
 
             let get_random_value_for_round_res = client
