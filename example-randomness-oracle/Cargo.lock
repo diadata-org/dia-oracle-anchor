@@ -1141,12 +1141,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "dia-oracle-example-random"
+name = "dia-oracle-example-randomness"
 version = "0.1.0"
 dependencies = [
- "dia-oracle-random-getter",
- "dia-oracle-random-setter",
- "dia-random-oracle",
+ "dia-oracle-randomness-getter",
+ "dia-oracle-randomness-setter",
+ "dia-oracle-randomness-type",
+ "dia-randomness-oracle",
  "ink",
  "ink_e2e",
  "parity-scale-codec",
@@ -1154,7 +1155,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "dia-oracle-random-getter"
+name = "dia-oracle-randomness-getter"
+version = "0.1.0"
+dependencies = [
+ "dia-oracle-randomness-type",
+ "ink",
+ "parity-scale-codec",
+ "scale-info",
+]
+
+[[package]]
+name = "dia-oracle-randomness-setter"
+version = "0.1.0"
+dependencies = [
+ "dia-oracle-randomness-type",
+ "ink",
+ "parity-scale-codec",
+]
+
+[[package]]
+name = "dia-oracle-randomness-type"
 version = "0.1.0"
 dependencies = [
  "ink",
@@ -1163,19 +1183,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "dia-oracle-random-setter"
+name = "dia-randomness-oracle"
 version = "0.1.0"
 dependencies = [
- "ink",
- "parity-scale-codec",
-]
-
-[[package]]
-name = "dia-random-oracle"
-version = "0.1.0"
-dependencies = [
- "dia-oracle-random-getter",
- "dia-oracle-random-setter",
+ "dia-oracle-randomness-getter",
+ "dia-oracle-randomness-setter",
+ "dia-oracle-randomness-type",
  "ink",
  "parity-scale-codec",
 ]

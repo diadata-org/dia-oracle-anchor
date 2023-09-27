@@ -19,10 +19,6 @@ scale-info = { version = "2.6", default-features = false, features = [
  dia-oracle-randomness-type = { path = "../contracts/oracle-randomness-type", default-features = false }
 
  
-
-
-
-
 [dev-dependencies]
 ink_e2e = "4.3.0"
 dia-randomness-oracle = { path = "../contracts/oracle-randomness", default-features = false }

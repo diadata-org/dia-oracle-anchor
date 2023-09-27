@@ -31,9 +31,9 @@ mod randomoracleexample {
     mod e2e_tests {
         use super::*;
         use dia_oracle_randomness_setter::RandomOracleSetter;
-        use dia_randomness_oracle::RandomDataStorageRef;
+        use dia_randomness_oracle::RandomnessOracleRef;
         use ink_e2e::build_message;
-        use dia_oracle_random_type::RandomData;
+        use dia_oracle_randomness_type::RandomData;
 
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -52,7 +52,7 @@ mod randomoracleexample {
             };
 
 
-            let constructor = RandomDataStorageRef::new();
+            let constructor = RandomnessOracleRef::new();
             let contract_acc_id = client
                 .instantiate("dia_random_oracle", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -75,14 +75,14 @@ mod randomoracleexample {
                 .expect("instantiate failed")
                 .account_id;
 
-            let set_random_value = build_message::<RandomDataStorageRef>(contract_acc_id.clone())
+            let set_random_value = build_message::<RandomnessOracleRef>(contract_acc_id.clone())
                 .call(|rds| rds.set_random_value(1, r_data.clone()));
             let _set_random_value_res = client
                 .call(&ink_e2e::alice(), set_random_value, 0, None)
                 .await
                 .expect("set failed");
 
-            let get_random_value_message = build_message::<RandomDataStorageRef>(contract_acc_id)
+            let get_random_value_message = build_message::<RandomnessOracleRef>(contract_acc_id)
                 .call(|rds| rds.get_random_value_for_round(1));
 
             let get_random_value_for_round_res = client
