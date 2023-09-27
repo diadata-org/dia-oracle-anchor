@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use dia_oracle_random_type::RandomData;
+use dia_oracle_randomness_type::RandomData;
 use ink::prelude::vec::Vec;
 use ink::primitives::AccountId;
 

@@ -1,7 +1,7 @@
 # Ignore build artifacts from the local tests sub-crate.
 /target/
 /example/target/
-/example-random-oracle/target/
+/example-randomness-oracle/target/
 
 .vscode
 

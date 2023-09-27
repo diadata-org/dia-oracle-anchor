@@ -2,7 +2,7 @@
 
 #[ink::contract]
 mod randomoracleexample {
-    use dia_oracle_random_getter::RandomOracleGetter;
+    use dia_oracle_randomness_getter::RandomOracleGetter;
     use ink::contract_ref;
     use ink::prelude::vec::Vec;
 
@@ -30,8 +30,8 @@ mod randomoracleexample {
     #[cfg_attr(all(test, feature = "e2e-tests"), allow(unused_imports))]
     mod e2e_tests {
         use super::*;
-        use dia_oracle_random_setter::RandomOracleSetter;
-        use dia_random_oracle::RandomDataStorageRef;
+        use dia_oracle_randomness_setter::RandomOracleSetter;
+        use dia_randomness_oracle::RandomDataStorageRef;
         use ink_e2e::build_message;
         use dia_oracle_random_type::RandomData;
 

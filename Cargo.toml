@@ -3,11 +3,11 @@ members = [
     "contracts/oracle",
     "contracts/oracle-getter",
     "contracts/oracle-setter",
-    "contracts/oracle-random",
-    "contracts/oracle-random-getter",
-    "contracts/oracle-random-setter",
-    "contracts/oracle-random-type",
+    "contracts/oracle-randomness",
+    "contracts/oracle-randomness-getter",
+    "contracts/oracle-randomness-setter",
+    "contracts/oracle-randomness-type",
 
 ]
 
-exclude = ["example/","example-random-oracle/"]
+exclude = ["example/","example-randomness-oracle/"]

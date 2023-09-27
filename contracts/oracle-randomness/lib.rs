@@ -7,9 +7,9 @@ pub mod oracle_anchor {
     use ink::prelude::vec::Vec;
     use ink::storage::{traits::ManualKey, Lazy, Mapping};
 
-    use dia_oracle_random_getter::RandomOracleGetter;
-    use dia_oracle_random_setter::RandomOracleSetter;
-    use dia_oracle_random_type::RandomData;
+    use dia_oracle_randomness_getter::RandomOracleGetter;
+    use dia_oracle_randomness_setter::RandomOracleSetter;
+    use dia_oracle_randomness_type::RandomData;
 
     #[ink::storage_item]
     pub struct RandomDataStruct {
