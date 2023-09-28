@@ -2,11 +2,14 @@ import dotenv from 'dotenv'
 import { IConfigs } from 'oracle-base'
 import { ChainSupported } from './constants'
 import { ASSET_PRICE_ANCHOR_ABI } from './contracts/price.oracle'
+import { RANDOM_ORACLE_ANCHOR_ABI } from './contracts/randomness.oracle'
 
 dotenv.config()
 
 export const ENV_CONFIG: IConfigs = {
   PORT: Number(process.env.PORT || 3000),
+
+  ORACLE_TYPE: Number(process.env.ORACLE_TYPE || 0),
 
   SYSTEM: {
     APPLICATION_NAME: 'Oracle Federation',
@@ -54,9 +57,25 @@ export const ENV_CONFIG: IConfigs = {
       ASSETS: String(process.env.ASSETS)
     },
 
+    ORACLE_RANDOMNESS: {
+      UPDATER_PRIVATE_KEY: String(process.env.PRIVATE_KEY),
+      SLEEP_SECONDS: Number(process.env.SLEEP_SECONDS || 120),
+      CONTRACTS: {
+        ALEPH_ZERO: {
+          RANDOMNESS_ORACLE: {
+            ADDRESS: String(process.env.DEPLOYED_CONTRACT),
+            ABI: RANDOM_ORACLE_ANCHOR_ABI
+          }
+        }
+      }
+    },
+
     EXTERNAL: {
       DIA: {
         API_ROOT: 'https://api.diadata.org'
+      },
+      DRAND: {
+        API_ROOT: 'https://drand.cloudflare.com'
       }
     }
   }

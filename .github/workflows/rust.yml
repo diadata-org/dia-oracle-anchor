@@ -48,7 +48,7 @@ jobs:
           CONTRACTS_NODE: ls # use dummy binary to avoid procmacro error
         with:
           command: check
-          args: --all-targets --all-features
+          args: --all-targets --all-features --manifest-path contracts/oracle/Cargo.toml 
 
       - name: Run unit test suite
         uses: actions-rs/cargo@v1
@@ -71,7 +71,11 @@ jobs:
           cargo contract check --manifest-path contracts/oracle/Cargo.toml && 
           cargo contract build --manifest-path contracts/oracle/Cargo.toml &&
           cargo contract check --manifest-path example/Cargo.toml &&
-          cargo contract check --manifest-path example/Cargo.toml 
+          cargo contract build --manifest-path example/Cargo.toml &&
+          cargo contract check --manifest-path example-randomness-oracle/Cargo.toml &&
+          cargo contract build --manifest-path example-randomness-oracle/Cargo.toml 
+
+
 
 
 

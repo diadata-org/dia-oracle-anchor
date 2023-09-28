@@ -66,6 +66,8 @@ declare module 'oracle-base' {
       PREFIX: string
     }
 
+    ORACLE_TYPE: number
+
     MODULES: {
       ORACLE: {
         FREQUENCY_SECONDS: number
@@ -83,8 +85,24 @@ declare module 'oracle-base' {
         ASSETS: string
       }
 
+      ORACLE_RANDOMNESS: {
+        UPDATER_PRIVATE_KEY: string
+        SLEEP_SECONDS: number
+        CONTRACTS: {
+          ALEPH_ZERO: {
+            RANDOMNESS_ORACLE: {
+              ADDRESS: string
+              ABI: any
+            }
+          }
+        }
+      }
+
       EXTERNAL: {
         DIA: {
+          API_ROOT: string
+        }
+        DRAND: {
           API_ROOT: string
         }
       }

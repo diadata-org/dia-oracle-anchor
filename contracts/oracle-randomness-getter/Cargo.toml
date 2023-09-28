@@ -1,7 +1,7 @@
 [package]
-name = "dia-oracle-getter"
+name = "dia-oracle-randomness-getter"
 version = "0.1.0"
-authors = ["slymewl slymewl@pellartech.com"]
+authors = ["nnn-gif nitin.gurbani@diadata.org"]
 edition = "2021"
 
 [dependencies]
@@ -14,6 +14,9 @@ scale-info = { version = "2.6", default-features = false, features = [
     "derive",
 ], optional = true }
 
+dia-oracle-randomness-type = { path = "../oracle-randomness-type", default-features = false }
+
+
 [dev-dependencies]
 ink_e2e = "4.3.0"
 
@@ -22,5 +25,5 @@ path = "lib.rs"
 
 [features]
 default = ["std"]
-std = ["ink/std", "scale/std", "scale-info/std"]
+std = ["ink/std", "scale/std", "scale-info/std","dia-oracle-randomness-type/std"]
 ink-as-dependency = []
