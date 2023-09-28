@@ -94,16 +94,6 @@ pub mod oracle_anchor {
             assert!(caller == rds.updater, "only updater can set price");
 
             for (round, data) in rounds {
-                // rds.value.insert(round, &data.clone());
-
-                // if rds.latest_round < round {
-                //     rds.latest_round = round;
-                // }
-
-                // self.env().emit_event(RandomnessPointAdded {
-                //     round: rds.latest_round,
-                //     randomness: data.randomness.clone(),
-                // });
                 self._set_random_value(round, data.clone(), &mut rds);
             }
 
