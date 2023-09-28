@@ -85,6 +85,8 @@ pub mod oracle_anchor {
             assert!(caller == rds.updater, "only updater can set price");
 
             self._set_random_value(round, data.clone(), &mut rds);
+
+            self.data.set(&rds);
         }
 
         #[ink(message)]
@@ -163,8 +165,6 @@ pub mod oracle_anchor {
             }
 
             rds.value.insert(round, &data.clone());
-
-            self.data.set(rds);
 
             self.env().emit_event(RandomnessPointAdded {
                 round,
@@ -607,7 +607,6 @@ pub mod oracle_anchor {
         }
     }
 
- 
     #[cfg(all(test, feature = "e2e-tests"))]
     #[cfg_attr(all(test, feature = "e2e-tests"), allow(unused_imports))]
     mod e2e_tests {
@@ -625,7 +624,13 @@ pub mod oracle_anchor {
             let previous_signature = vec![4, 5, 6];
 
             let contract_acc_id = client
-                .instantiate("dia_randomness_oracle", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate(
+                    "dia_randomness_oracle",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
