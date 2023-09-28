@@ -13,11 +13,13 @@ New assets can also be supported on demand.
 DIA xRandom provides smart contracts with unpredictable random numbers. DIA leverages drand’s distributed randomness beacon, enabling verifiable, unpredictable and unbiased random numbers.
 The randomness oracle enables the creation of on-chain applications including but not limited to on-chain gaming, lotteries, prediction markets, and NFT launches​. 
 
-## Testnet
+## Testnet oracles
 To facilitate development, the DIA oracles are deployed on Aleph Zero testnet.
+Any developer can interact with these oracles without any authentication.
 
-### Contracts
+### Oracle contracts
 The asset price oracle contract is deployed here: https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U
+
 The smart contract contains two values per asset, the timestamp of the last update and the value of the asset price.
 The asset price is stored with 18 decimals by default.
 
@@ -51,10 +53,11 @@ The asset price is stored with 18 decimals by default.
 
 Other functions include the retrieval of historic prices and the precision (decimals) of the oracle.
 
-### Feeder
+## Behind the scenes: Feeder setup
 The smart contract is fed by a piece of software called the *Feeder* which is available as a docker image.
+Unless you want to re-create the entire setup and operate your own oracle, the following section is not relevant.
 
-#### Environment for testing the feeder
+### Environment for testing the feeder
 These variables will be read from helm configs as environment variables
 <table>
     <tr>
@@ -112,12 +115,12 @@ These variables will be read from helm configs as environment variables
 
 > Note: these values are just used for testnet. Never share your production private key with anyone.
 
-#### How to run to the test with your own feeder
+### How to run to the test with your own feeder
 - Fill your env vars
 - Install docker
 - Run: 
   + `docker build --tag dia-oracle:latest .`
   + `docker run --rm -p 3000:3000 -d dia-oracle:latest`
 
-#### Output
+### Output
 The feeder will auto feed price onchain with 18 decimals. If you want to track transaction logs, youcan access them at `http://${host}/api/v1/oracle?page_size=${page_size}&page_index=${page_index}`
