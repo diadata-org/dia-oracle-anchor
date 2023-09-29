@@ -9,9 +9,41 @@ DIA token price feeds provide smart contract real-time price information cryptoc
 The feeds facilitate the development of DeFi use cases such as money markets, lending/borrowing, synthetic asset issuance, options, derivatives and futures markets, and many more.
 New assets can also be supported on demand.
 
+#### Supported assets
+The deployed DIA oracles support the following assets
+
+| Asset | Query String | Methodology | Update Threshold |
+| ----- | ------------ | ----------- | ---------------- |
+| [Bitcoin](https://www.diadata.org/app/price/asset/Bitcoin/0x0000000000000000000000000000000000000000/) | `BTC/USD` | MAIR120 | 2% |
+| [Ether](https://www.diadata.org/app/price/asset/Ethereum/0x0000000000000000000000000000000000000000/) | `ETH/USD` | MAIR120 | 2% |
+| [USDC](https://www.diadata.org/app/price/asset/Ethereum/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/) | `USDC/USD` | MAIR120 | 2% |
+| [USDT](https://www.diadata.org/app/price/asset/Ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7/) | `USDT/USD` | MAIR120 | 2% |
+| [DOT](https://www.diadata.org/app/price/asset/Polkadot/0x0000000000000000000000000000000000000000/) | `DOT/USD` | MAIR120 | 2% |
+| [SOL](https://www.diadata.org/app/price/asset/Solana/0x0000000000000000000000000000000000000000/) | `SOL/USD` | MAIR120 | 2% |
+| [AVAX](https://www.diadata.org/app/price/asset/Avalanche/0x0000000000000000000000000000000000000000/) | `AVAX/USD` | MAIR120 | 2% |
+| [DOT](https://www.diadata.org/app/price/asset/Polkadot/0x0000000000000000000000000000000000000000/) | `DOT/USD` | MAIR120 | 2% |
+| [EUR](https://www.diadata.org/app/price/asset/Fiat/978/) | `EUR/USD` | MAIR120 | 2% |
+| [BNB](https://www.diadata.org/app/price/asset/BinanceSmartChain/0x0000000000000000000000000000000000000000/) | `BNB/USD` | MAIR120 | 2% |
+| [DOGE](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `DOGE/USD` | MAIR120 | 2% |
+| [MATIC](https://www.diadata.org/app/price/asset/Polygon/0x0000000000000000000000000000000000001010/) | `MATIC/USD` | MAIR120 | 2% |
+| [DAI](https://www.diadata.org/app/price/asset/Ethereum/0x6B175474E89094C44Da98b954EedeAC495271d0F/) | `DAI/USD` | MAIR120 | 2% |
+| [AZERO](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `AZERO/USD` | MAIR120 | 2% |
+
+The MAIR120 methodology is defined [in detail in the DIA documentation](https://docs.diadata.org/products/token-price-feeds/exchangeprices/mair-moving-average-with-interquartile-range-filter).
+
 ### Randomness Oracle
 DIA xRandom provides smart contracts with unpredictable random numbers. DIA leverages drand’s distributed randomness beacon, enabling verifiable, unpredictable and unbiased random numbers.
 The randomness oracle enables the creation of on-chain applications including but not limited to on-chain gaming, lotteries, prediction markets, and NFT launches​. 
+
+### Deployed Oracles
+Deployed oracles can be accessed at these addresses:
+
+| Network | Oracle Name | Address |
+| ------- | ----------- | ------- |
+| Testnet | Asset Price Oracle | [`5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`](https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U)
+| Testnet | Randomness Oracle | *coming soon* |
+| Mainnet | Asset Price Oracle | *coming soon* |
+| Mainnet | Randomness Oracle | *coming soon* |
 
 ## Testnet oracles
 To facilitate development, the DIA oracles are deployed on Aleph Zero testnet.
