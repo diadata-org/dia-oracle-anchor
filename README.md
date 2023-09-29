@@ -41,21 +41,21 @@ Deployed oracles can be accessed at these addresses:
 | Network | Oracle Name | Address |
 | ------- | ----------- | ------- |
 | Testnet | Asset Price Oracle | [`5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`](https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U)
-| Testnet | Randomness Oracle | *coming soon* |
+| Testnet | Randomness Oracle | [`5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg`](https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg) |
 | Mainnet | Asset Price Oracle | *coming soon* |
 | Mainnet | Randomness Oracle | *coming soon* |
 
-## Testnet oracles
+## Asset price oracle
 To facilitate development, the DIA oracles are deployed on Aleph Zero testnet.
 Any developer can interact with these oracles without any authentication.
 
-### Oracle contracts
+### Oracle contract
 The asset price oracle contract is deployed here: https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U
 
 The smart contract contains two values per asset, the timestamp of the last update and the value of the asset price.
 The asset price is stored with 18 decimals by default.
 
-To interact with this contract via the aleph zero UI, you can import the deployed contract above.
+To interact with this contract via the aleph zero UI, you can import the deployed contract.
 
 #### Compiling the smart contract
 Generate the smart contract files for interacting with the contact and import the resulting file into the Aleph Zero UI.
@@ -70,7 +70,7 @@ Generate the smart contract files for interacting with the contact and import th
 - Import the built file ./target/ink/dia_oracle/dia_oracle.contract
 
 ### Interacting with the oracle
-The `example`directory contains an example for how the oracle can be called by a dApp.
+The `example` directory contains an example for how the oracle can be called by a dApp.
 This piece of code shows how an asset can be retrieved using the `getLatestPrice()` function.
 
 ```
@@ -80,10 +80,34 @@ This piece of code shows how an asset can be retrieved using the `getLatestPrice
         }
 ```
 The key usually is the string symbol of an asset pair, for example, "BTC/USD" for the price of Bitcoin.
-The return value two values per asset, the timestamp of the last update and the value of the asset price.
+The return value contains two values per asset, the timestamp of the last update and the value of the asset price.
 The asset price is stored with 18 decimals by default.
 
 Other functions include the retrieval of historic prices and the precision (decimals) of the oracle.
+
+## Randomness oracle
+The randomness oracle is available on Aleph Zero testnet and can be used to retrieve randomness from [drand.love](https://drand.love).
+
+### Oracle contract
+The randomness oracle contract is deployed here: https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg
+
+Randomness is produced in numbered rounds. Each round's randomness can be retirved individually and the latest round can be queried from the contract directly.
+To interact with this contract via the aleph zero UI, you can import the deployed contract above.
+
+### Interacting with the oracle
+The `example-randomness-oracle` directory contains an example for how the radnomness oracle can be called by a dApp.
+This piece of code shows how an asset can be retrieved using the `getLatestPrice()` function.
+
+```
+        #[ink(message)]
+        pub fn get(&self, key: u64) -> Option<Vec<u8>> {
+            self.oracle.get_random_value_for_round(key)
+        }
+```
+The key is the integer round number, for example 3353171.
+The return value contains three values per round, the radnomness value, its signature, and the previous round's signature.
+
+Other functions include the retrieval of the latest round ID and the historical round randomnesses.
 
 ## Behind the scenes: Feeder setup
 The smart contract is fed by a piece of software called the *Feeder* which is available as a docker image.
