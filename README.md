@@ -1,26 +1,64 @@
-# Testnet
+# DIA Oracles on Aleph Zero
+This repository contains the source code for DIA oracles on Aleph Zero.
 
-## Contracts
+## Oracle Types
+DIA offers two types of oracles on Aleph Zero.
+
+### Asset Price Oracle
+DIA token price feeds provide smart contract real-time price information cryptocurrency assets, transparently sourced from 80+ trusted, high-volume DEXs and CEXs.
+The feeds facilitate the development of DeFi use cases such as money markets, lending/borrowing, synthetic asset issuance, options, derivatives and futures markets, and many more.
+New assets can also be supported on demand.
+
+### Randomness Oracle
+DIA xRandom provides smart contracts with unpredictable random numbers. DIA leverages drand’s distributed randomness beacon, enabling verifiable, unpredictable and unbiased random numbers.
+The randomness oracle enables the creation of on-chain applications including but not limited to on-chain gaming, lotteries, prediction markets, and NFT launches​. 
+
+## Testnet oracles
+To facilitate development, the DIA oracles are deployed on Aleph Zero testnet.
+Any developer can interact with these oracles without any authentication.
+
+### Oracle contracts
+The asset price oracle contract is deployed here: https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U
+
+The smart contract contains two values per asset, the timestamp of the last update and the value of the asset price.
+The asset price is stored with 18 decimals by default.
+
+To interact with this contract via the aleph zero UI, you can import the deployed contract above.
+
+#### Compiling the smart contract
+Generate the smart contract files for interacting with the contact and import the resulting file into the Aleph Zero UI.
+
+- Install cargo and required dependencies: https://docs.alephzero.org/aleph-zero/build/aleph-zero-smart-contracts-basics/installig-required-tools
+- Run `cargo contract build --release`
+- Go to https://contracts-ui.substrate.io/contract
+- Choose `aleph zero testnet` on top left
+- Choose `Add new contract`
+- Choose `Use Onchain Contract`
+- Enter `5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`
+- Import the built file ./target/ink/dia_oracle/dia_oracle.contract
+
+### Interacting with the oracle
+The `example`directory contains an example for how the oracle can be called by a dApp.
+This piece of code shows how an asset can be retrieved using the `getLatestPrice()` function.
 
 ```
-Token price contract deployed: https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U
+        #[ink(message)]
+        pub fn get(&self, key: String) -> Option<(u64, u128)> {
+            self.oracle.get_latest_price(key)
+        }
 ```
+The key usually is the string symbol of an asset pair, for example, "BTC/USD" for the price of Bitcoin.
+The return value two values per asset, the timestamp of the last update and the value of the asset price.
+The asset price is stored with 18 decimals by default.
 
-To interact with contract on aleph zero UI, you can import deployed contract above
+Other functions include the retrieval of historic prices and the precision (decimals) of the oracle.
 
-- install cargo and required libs https://docs.alephzero.org/aleph-zero/build/aleph-zero-smart-contracts-basics/installing-required-tools
-- run `cargo contract build --release`
-- go to https://contracts-ui.substrate.io/contract
-- choose `aleph zero testnet` on top left
-- choose `Add new contract`
-- choose `Use Onchain Contract`
-- enter `5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`
-- import file ./target/ink/dia_oracle/dia_oracle.contract
+## Behind the scenes: Feeder setup
+The smart contract is fed by a piece of software called the *Feeder* which is available as a docker image.
+Unless you want to re-create the entire setup and operate your own oracle, the following section is not relevant.
 
-## Bot
-
-### Env for test
-These variables will be read from helm configs
+### Environment for testing the feeder
+These variables will be read from helm configs as environment variables
 <table>
     <tr>
         <td>Name</td>
@@ -80,15 +118,14 @@ These variables will be read from helm configs
     </tr>
 </table>
 
-> Note: these values are just used for testnet
+> Note: these values are just used for testnet. Never share your production private key with anyone.
 
-### How to run to test
-- fill your env vars
-- install docker
-- run: 
-  + docker build --tag dia-oracle:latest .
-  + docker run --rm -p 3000:3000 -d dia-oracle:latest
+### How to run to the test with your own feeder
+- Fill your env vars
+- Install docker
+- Run: 
+  + `docker build --tag dia-oracle:latest .`
+  + `docker run --rm -p 3000:3000 -d dia-oracle:latest`
 
 ### Output
-- bot will auto feed price onchain with 18 decimals
-- if you want to track txn logs, http://${host}/api/v1/oracle?page_size=${page_size}&page_index=${page_index}
+The feeder will auto feed price onchain with 18 decimals. If you want to track transaction logs, youcan access them at `http://${host}/api/v1/oracle?page_size=${page_size}&page_index=${page_index}`
