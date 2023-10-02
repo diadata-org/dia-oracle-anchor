@@ -33,7 +33,9 @@ The MAIR120 methodology is defined [in detail in the DIA documentation](https://
 
 ### Randomness Oracle
 DIA xRandom provides smart contracts with unpredictable random numbers. DIA leverages drand’s distributed randomness beacon, enabling verifiable, unpredictable and unbiased random numbers.
-The randomness oracle enables the creation of on-chain applications including but not limited to on-chain gaming, lotteries, prediction markets, and NFT launches​. 
+The randomness oracle enables the creation of on-chain applications including but not limited to on-chain gaming, lotteries, prediction markets, and NFT launches. 
+
+The randomness oracle is defined [in detail in the DIA documentation](https://docs.diadata.org/documentation/oracle-documentation/randomness-oracle).
 
 ### Deployed Oracles
 Deployed oracles can be accessed at these addresses:
@@ -42,17 +44,15 @@ Deployed oracles can be accessed at these addresses:
 | ------- | ----------- | ------- |
 | Testnet | Asset Price Oracle | [`5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`](https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U)
 | Testnet | Randomness Oracle | [`5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg`](https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg) |
-| Mainnet | Asset Price Oracle | *coming soon* |
-| Mainnet | Randomness Oracle | *coming soon* |
+| Mainnet | Asset Price Oracle | [`5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG`](https://contracts-ui.substrate.io/contract/5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG) |
+| Mainnet | Randomness Oracle | [`5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi`](https://contracts-ui.substrate.io/contract/5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi) |
 
 ## Asset price oracle
-To facilitate development, the DIA oracles are deployed on Aleph Zero testnet.
+To facilitate development, the DIA oracles are deployed on Aleph Zero mainnet and testnet.
 Any developer can interact with these oracles without any authentication.
 
 ### Oracle contract
-The asset price oracle contract is deployed here: https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U
-
-The smart contract contains two values per asset, the timestamp of the last update and the value of the asset price.
+The smart contract is a key/vlaue store and contains two values per asset, the timestamp of the last update and the value of the asset price.
 The asset price is stored with 18 decimals by default.
 
 To interact with this contract via the aleph zero UI, you can import the deployed contract.
@@ -86,17 +86,16 @@ The asset price is stored with 18 decimals by default.
 Other functions include the retrieval of historic prices and the precision (decimals) of the oracle.
 
 ## Randomness oracle
-The randomness oracle is available on Aleph Zero testnet and can be used to retrieve randomness from [drand.love](https://drand.love).
+The randomness oracle is available on Aleph Zero mainnet and testnet and can be used to retrieve randomness from [drand.love](https://drand.love).
 
 ### Oracle contract
-The randomness oracle contract is deployed here: https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg
-
 Randomness is produced in numbered rounds. Each round's randomness can be retirved individually and the latest round can be queried from the contract directly.
 To interact with this contract via the aleph zero UI, you can import the deployed contract above.
 
 ### Interacting with the oracle
 The `example-randomness-oracle` directory contains an example for how the radnomness oracle can be called by a dApp.
-This piece of code shows how an asset can be retrieved using the `getLatestPrice()` function.
+This piece of code shows how an asset can be retrieved using the `getRandomValueForRound()` function.
+The latest round (the required input parameter for this call) can be retrieved using the `getLatestRound()` function.
 
 ```
         #[ink(message)]
@@ -118,13 +117,13 @@ These variables will be read from helm configs as environment variables
 <table>
     <tr>
         <td>Name</td>
-        <td>Value</td>
+        <td>Default Value</td>
         <td>Description</td>
     </tr>
     <tr>
         <td>DATABASE_URL</td>
         <td>postgresql://user:password@host:port/dbname</td>
-        <td>Postgres database URL</td>
+        <td>Postgres database URL (optional, for recording transaction IDs)</td>
     </tr>
     <tr>
         <td>BLOCKCHAIN_NODE</td>
@@ -133,7 +132,7 @@ These variables will be read from helm configs as environment variables
     </tr>
     <tr>
         <td>PRIVATE_KEY</td>
-        <td>0x0f41531f507c46cf005bba7043b62f8fe003893b9ab5ce79138a7c53f2fc6846</td>
+        <td>*insert your private updater key here* </td>
         <td>PK of price updater</td>
     </tr>
     <tr>
@@ -155,7 +154,7 @@ These variables will be read from helm configs as environment variables
       Solana-0x0000000000000000000000000000000000000000,
       Polkadot-0x0000000000000000000000000000000000000000
       "</td>
-        <td>Assets to be stored price</td>
+        <td>Assets, whose price is to be stored in the oracle</td>
     </tr>
     <tr>
         <td>FREQUENCY_SECONDS</td>
@@ -170,7 +169,7 @@ These variables will be read from helm configs as environment variables
         <tr>
         <td>ORACLE_TYPE</td>
         <td>0</td>
-        <td>Type of oracle For Pricing update 1, and for Randomness update 2</td>
+        <td>Type of oracle for pricing oracle 0, and for randomness oracle 1</td>
     </tr>
 </table>
 
