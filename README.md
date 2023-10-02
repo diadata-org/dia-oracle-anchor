@@ -43,21 +43,29 @@ Deployed oracles can be accessed at these addresses:
 | Network | Oracle Name | Address | Metadata JSON |
 | ------- | ----------- | ------- | ------------- |
 | Testnet | Asset Price Oracle | [`5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`](https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U) | [Price Oracle Metadata](example/dia_oracle.json) |
-| Testnet | Randomness Oracle | [`5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg`](https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg) | [Randomness Oracle Metadata](example-randomness/dia_randomness_oracle.json) |
-| Mainnet | Asset Price Oracle | [`5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG`](https://contracts-ui.substrate.io/contract/5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG) |
-| Mainnet | Randomness Oracle | [`5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi`](https://contracts-ui.substrate.io/contract/5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi) |
+| Testnet | Randomness Oracle | [`5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg`](https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
+| Mainnet | Asset Price Oracle | [`5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG`](https://contracts-ui.substrate.io/contract/5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG) | [Price Oracle Metadata](example/dia_oracle.json) |
+| Mainnet | Randomness Oracle | [`5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi`](https://contracts-ui.substrate.io/contract/5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
 
 ## Asset price oracle
 To facilitate development, the DIA oracles are deployed on Aleph Zero mainnet and testnet.
 Any developer can interact with these oracles without any authentication.
 
 ### Oracle contract
-The smart contract is a key/vlaue store and contains two values per asset, the timestamp of the last update and the value of the asset price.
+The smart contract is a key/value store and contains two values per asset, the timestamp of the last update and the value of the asset price.
 The asset price is stored with 18 decimals by default.
 
-To interact with this contract via the aleph zero UI, you can import the deployed contract.
+To interact with this contract via the aleph zero UI, you can import the metadata of the deployed contract in the Contracts UI by subscan:
+
+- Go to https://contracts-ui.substrate.io/contract
+- Choose `aleph zero` or `aleph zero testnet` on top left
+- Choose `Add new contract`
+- Choose `Use Onchain Contract`
+- Enter the contract address
+- Import the metadata json file
 
 #### Compiling the smart contract
+Alternatively to using the provided metadata json, you can generate it yourself.
 Generate the smart contract files for interacting with the contact and import the resulting file into the Aleph Zero UI.
 
 - Install cargo and required dependencies: https://docs.alephzero.org/aleph-zero/build/aleph-zero-smart-contracts-basics/installig-required-tools
@@ -69,7 +77,7 @@ Generate the smart contract files for interacting with the contact and import th
 - Enter `5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`
 - Import the built file ./target/ink/dia_oracle/dia_oracle.contract
 
-### Interacting with the oracle
+### Interacting with the oracle in your dApp
 The `example` directory contains an example for how the oracle can be called by a dApp.
 This piece of code shows how an asset can be retrieved using the `getLatestPrice()` function.
 
