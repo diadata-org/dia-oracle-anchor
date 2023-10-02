@@ -91,8 +91,6 @@ The key usually is the string symbol of an asset pair, for example, "BTC/USD" fo
 The return value contains two values per asset, the timestamp of the last update and the value of the asset price.
 The asset price is stored with 18 decimals by default.
 
-Other functions include the retrieval of historic prices and the precision (decimals) of the oracle.
-
 ## Randomness oracle
 The randomness oracle is available on Aleph Zero mainnet and testnet and can be used to retrieve randomness from [drand.love](https://drand.love).
 
