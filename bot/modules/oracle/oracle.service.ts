@@ -17,7 +17,7 @@ export default class OracleService {
   @inject(ExternalProvider.name) private _externalProvider: ExternalProvider
   @inject(NotificationProvider.name) private _notificationProvider: NotificationProvider
   @inject(OracleRepository.name) private _oracleRepository: OracleRepository
-
+  private _initalRun: boolean
   constructor(
     @inject(LLogger.name) logger: LLogger, //
     @inject(AlephZeroProvider.name) alephZeroProvider: AlephZeroProvider,
@@ -30,6 +30,7 @@ export default class OracleService {
     this._externalProvider = externalProvider
     this._notificationProvider = notificationProvider
     this._oracleRepository = oracleRepository
+    this._initalRun = false
   }
 
   public async getTransactionLogs(params: PaginateRequest) {
@@ -372,7 +373,8 @@ export default class OracleService {
 
       let rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
 
-      if (max_historical !== 0) {
+      if (max_historical !== 0 && !this._initalRun) {
+        this._initalRun = true
         if (rounds.length > max_historical) {
           this._logger.info(`Maximum historical rounds to update ${max_historical}`)
 
