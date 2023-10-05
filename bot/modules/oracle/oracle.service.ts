@@ -51,7 +51,7 @@ export default class OracleService {
   public async checkIfNeedToSubmitAsset(chain: string, tokenAddress: string) {
     try {
       this._logger.info(`Check deviation permille asset price: ${chain}-${tokenAddress}`)
-      const deviationPermille = Number(CONFIG.MODULES.ORACLE.DEVIATION_PERMILLE) / 100
+      const deviationPermille = Number(CONFIG.MODULES.ORACLE.DEVIATION_PERMILLE)
       const configs = CONFIG.MODULES.ORACLE.CONTRACTS.ALEPH_ZERO.ASSET_PRICE_ANCHOR
       let api: any
       try {
@@ -93,8 +93,13 @@ export default class OracleService {
       const deviationPositive = price * (1 + deviationPermille / 1000)
       const deviationNegative = price * (1 - deviationPermille / 1000)
 
+      this._logger.info(
+        `Asset ${chain}-${tokenAddress}, deviationPositive ${deviationPositive} deviationNegative ${deviationNegative} currentPrice ${currentPrice}  `
+      )
+
       if (currentPrice > deviationPositive || currentPrice < deviationNegative) {
         this._logger.info(`Deviation reached Submitting asset price : ${chain}-${tokenAddress}`)
+
         return await this.submitAssetPrice(chain, tokenAddress)
       }
     } catch (err) {
@@ -164,7 +169,7 @@ export default class OracleService {
       }
 
       const txnHash = result.result?.toHex()
-      this._logger.info(`Transaction done : ${String(txnHash)} for asset ${tokenAddress}`)
+      this._logger.info(`Transaction done : ${String(txnHash)} for asset ${chain}-${tokenAddress}`)
 
       const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
       if (process.env.DATABASE_URL) {
