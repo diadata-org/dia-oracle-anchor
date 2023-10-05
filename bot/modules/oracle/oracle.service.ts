@@ -135,25 +135,26 @@ export default class OracleService {
       const txnHash = result.result?.toHex()
 
       const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
-
-      try {
-        await this._oracleRepository.createTransactionLogs([
-          {
-            note: `Submit asset price: ${tokenPrice.Symbol}/USD = ${tokenPrice.Price}`,
-            event: TransactionEvent.SetAssetPrice,
-            hash: txnHash,
-            block_number: res.block?.block_number,
-            block_hash: res.block?.block_hash,
-            nonce: res.txn?.nonce,
-            from: res.txn?.signer,
-            to: res.txn.dest,
-            value: res.txn?.value,
-            data: res.txn?.data,
-            status: res.status
-          }
-        ])
-      } catch (err) {
-        this._logger.error(`Can not update transaction to db: ${String(err)}`)
+      if (process.env.DATABASE_URL) {
+        try {
+          await this._oracleRepository.createTransactionLogs([
+            {
+              note: `Submit asset price: ${tokenPrice.Symbol}/USD = ${tokenPrice.Price}`,
+              event: TransactionEvent.SetAssetPrice,
+              hash: txnHash,
+              block_number: res.block?.block_number,
+              block_hash: res.block?.block_hash,
+              nonce: res.txn?.nonce,
+              from: res.txn?.signer,
+              to: res.txn.dest,
+              value: res.txn?.value,
+              data: res.txn?.data,
+              status: res.status
+            }
+          ])
+        } catch (err) {
+          this._logger.error(`Can not update transaction to db: ${String(err)}`)
+        }
       }
 
       return {
@@ -177,7 +178,7 @@ export default class OracleService {
 
   public async submitRandomRound(rounds: number[]) {
     try {
-      this._logger.info(`Submit Total  Random Round Data Points : ${rounds.length}`)
+      this._logger.info(`Submit Total  Random Round Data Points : ${rounds.length}  Starts from: ${rounds[0]} Ends At ${rounds[rounds.length - 1]}`)
       const configs = CONFIG.MODULES.ORACLE_RANDOMNESS.CONTRACTS.ALEPH_ZERO.RANDOMNESS_ORACLE
       const api = await this._alephZeroProvider.getHttpApi()
       const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
@@ -220,25 +221,27 @@ export default class OracleService {
       const txnHash = result.result?.toHex()
 
       const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
-
-      try {
-        await this._oracleRepository.createTransactionLogs([
-          {
-            note: `Submit Random round price: ${rounds}`,
-            event: RandomOracleEvent.RandomnessPointAdded,
-            hash: txnHash,
-            block_number: res.block?.block_number,
-            block_hash: res.block?.block_hash,
-            nonce: res.txn?.nonce,
-            from: res.txn?.signer,
-            to: res.txn.dest,
-            value: res.txn?.value,
-            data: res.txn?.data,
-            status: res.status
-          }
-        ])
-      } catch (err) {
-        this._logger.error(`Can not update transaction to db: ${String(err)}`)
+      this._logger.info(`Transaction done: ${String(txnHash)}`)
+      if (process.env.DATABASE_URL) {
+        try {
+          await this._oracleRepository.createTransactionLogs([
+            {
+              note: `Submit Random round price: ${rounds}`,
+              event: RandomOracleEvent.RandomnessPointAdded,
+              hash: txnHash,
+              block_number: res.block?.block_number,
+              block_hash: res.block?.block_hash,
+              nonce: res.txn?.nonce,
+              from: res.txn?.signer,
+              to: res.txn.dest,
+              value: res.txn?.value,
+              data: res.txn?.data,
+              status: res.status
+            }
+          ])
+        } catch (err) {
+          this._logger.error(`Can not update transaction to db: ${String(err)}`)
+        }
       }
 
       return {
@@ -282,20 +285,31 @@ export default class OracleService {
       )
 
       const lastRoundFromContract = Number(String((lastRound.output?.toJSON() as any)?.ok ?? '0'))
-
+      // For newly deployed contracts
       if (isNaN(lastRoundFromContract) || lastRoundFromContract === 0) {
         const startRound = Number(latestRandomnessRound.round) - 5
         const rounds = Array.from({ length: latestRandomnessRound.round - startRound + 1 }, (_, index) => startRound + index)
         await this.submitRandomRound(rounds)
         return
       }
-
+      // for existing contracts
       const currentRound = Number(latestRandomnessRound.round)
 
       const rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
-      await this.submitRandomRound(rounds)
+
+      // divide rounds in buckets of 10
+      const bucketSize = 10
+      while (rounds.length > 0) {
+        const bucket = rounds.splice(0, bucketSize)
+        this._logger.info(`Total Data point Updates ${rounds.length} Total Rounds left: ${rounds.length / bucketSize}`)
+        try {
+          await this.submitRandomRound(bucket)
+        } catch (err) {
+          this._logger.error(`Error on submitRandomRound : ${String(err)}`)
+        }
+      }
     } catch (err) {
-      this._logger.error(`Can not check asset price: ${String(err)}`)
+      this._logger.error(`Can not checkIfNeedToSubmitRandomnessUpdate : ${String(err)}`)
 
       this._notificationProvider.sendTaskRunFailed({
         error: String(err),
