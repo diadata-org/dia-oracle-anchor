@@ -78,6 +78,7 @@ export default class OracleIndexer {
   }
 
   public initOracleRandomnessOracleChecker() {
+    this._lLogger.info('Randomness oracle feeder started.')
     const sleepSeconds = Number(CONFIG.MODULES.ORACLE_RANDOMNESS.SLEEP_SECONDS)
     setInterval(async () => {
       try {
