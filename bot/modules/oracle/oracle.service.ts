@@ -136,14 +136,31 @@ export default class OracleService {
         throw new Error(`Error while getting asset price: ${JSON.stringify(error)}`)
       }
 
-      const result = await this._alephZeroProvider.contractTx(
-        api,
-        this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
-        contract,
-        'OracleSetters::setPrice',
-        {},
-        [`${tokenPrice.Symbol}/USD`, this._alephZeroProvider.parseFromFloatToInt(String(tokenPrice.Price), PRECISION_DECIMALS)]
-      )
+      let retryCount = 0
+      let result: any
+      const maxRetries = 3 // Set the maximum number of retries
+
+      while (retryCount < maxRetries) {
+        try {
+          result = await this._alephZeroProvider.contractTx(
+            api,
+            this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
+            contract,
+            'OracleSetters::setPrice',
+            {},
+            [`${tokenPrice.Symbol}/USD`, this._alephZeroProvider.parseFromFloatToInt(String(tokenPrice.Price), PRECISION_DECIMALS)]
+          )
+
+          break // Exit the loop on success
+        } catch (error) {
+          this._logger.error(`Error in contractTx  (Retry ${retryCount}): ${JSON.stringify(error)}`)
+          // Increment the retry count
+          retryCount++
+          if (retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          }
+        }
+      }
 
       const txnHash = result.result?.toHex()
 
@@ -227,6 +244,7 @@ export default class OracleService {
             args.push(roundsArr)
             args.push(params)
             req.push(args)
+            break
           } else {
             retryCount++
             this._logger.error(`Error while getting random round (Retry ${retryCount}): ${JSON.stringify(error)}`)
@@ -237,14 +255,30 @@ export default class OracleService {
         }
       }
 
-      const result = await this._alephZeroProvider.contractTx(
-        api,
-        this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
-        contract,
-        'RandomOracleSetter::set_random_values',
-        {},
-        [req]
-      )
+      let retryCount = 0
+      let result: any
+
+      while (retryCount < maxRetries) {
+        try {
+          result = await this._alephZeroProvider.contractTx(
+            api,
+            this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
+            contract,
+            'RandomOracleSetter::set_random_values',
+            {},
+            [req]
+          )
+
+          break // Exit the loop on success
+        } catch (error) {
+          this._logger.error(`Error in contractTx  (Retry ${retryCount}): ${JSON.stringify(error)}`)
+          // Increment the retry count
+          retryCount++
+          if (retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          }
+        }
+      }
 
       const txnHash = result.result?.toHex()
 

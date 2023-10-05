@@ -41,7 +41,6 @@ export default class ExternalProvider {
       Accept: 'application/json'
     },
     withCredentials: false,
-    timeout: 30000,
     transformRequest: [
       data => {
         data = JSON.stringify(data)
