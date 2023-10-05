@@ -94,6 +94,7 @@ export default class OracleService {
       const deviationNegative = price * (1 - deviationPermille / 1000)
 
       if (currentPrice > deviationPositive || currentPrice < deviationNegative) {
+        this._logger.info(`Deviation reached Submitting asset price : ${chain}-${tokenAddress}`)
         return await this.submitAssetPrice(chain, tokenAddress)
       }
     } catch (err) {
@@ -155,7 +156,6 @@ export default class OracleService {
           break // Exit the loop on success
         } catch (error) {
           this._logger.error(`Error in contractTx  (Retry ${retryCount}): ${JSON.stringify(error)}`)
-          // Increment the retry count
           retryCount++
           if (retryCount < maxRetries) {
             await new Promise(resolve => setTimeout(resolve, 2000))
@@ -164,6 +164,7 @@ export default class OracleService {
       }
 
       const txnHash = result.result?.toHex()
+      this._logger.info(`Transaction done : ${String(txnHash)} for asset ${tokenAddress}`)
 
       const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
       if (process.env.DATABASE_URL) {
