@@ -387,7 +387,8 @@ export default class OracleService {
       // divide rounds in buckets of 10
       const bucketSize = 10
       while (rounds.length > 0) {
-        const bucket = rounds.splice(0, bucketSize)
+        rounds = rounds.sort((a, b) => b - a)
+        const bucket = rounds.splice(1, bucketSize)
         this._logger.info(`Total Data point Updates Left ${rounds.length} Total Rounds left: ${rounds.length / bucketSize}`)
         try {
           await this.submitRandomRound(bucket)
