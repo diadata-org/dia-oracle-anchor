@@ -52,7 +52,12 @@ export default class OracleService {
       this._logger.info(`Check deviation permille asset price: ${chain}-${tokenAddress}`)
       const deviationPermille = Number(CONFIG.MODULES.ORACLE.DEVIATION_PERMILLE) / 100
       const configs = CONFIG.MODULES.ORACLE.CONTRACTS.ALEPH_ZERO.ASSET_PRICE_ANCHOR
-      const api = await this._alephZeroProvider.getHttpApi()
+      let api: any
+      try {
+        api = await this._alephZeroProvider.getHttpApi()
+      } catch (error) {
+        throw new Error(`Error while connecting to node: ${JSON.stringify(error)}`)
+      }
       const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
 
       const { error, data: tokenPrice } = await this._externalProvider.getAssetPrice(
@@ -87,7 +92,7 @@ export default class OracleService {
       const deviationPositive = price * (1 + deviationPermille / 1000)
       const deviationNegative = price * (1 - deviationPermille / 1000)
 
-      if (currentPrice > deviationPositive || deviationPositive < deviationNegative) {
+      if (currentPrice > deviationPositive || currentPrice < deviationNegative) {
         return await this.submitAssetPrice(chain, tokenAddress)
       }
     } catch (err) {
@@ -109,7 +114,12 @@ export default class OracleService {
     try {
       this._logger.info(`Submit asset price: ${chain}-${tokenAddress}`)
       const configs = CONFIG.MODULES.ORACLE.CONTRACTS.ALEPH_ZERO.ASSET_PRICE_ANCHOR
-      const api = await this._alephZeroProvider.getHttpApi()
+      let api: any
+      try {
+        api = await this._alephZeroProvider.getHttpApi()
+      } catch (error) {
+        throw new Error(`Error while connecting to node: ${JSON.stringify(error)}`)
+      }
       const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
 
       const { error, data: tokenPrice } = await this._externalProvider.getAssetPrice(
@@ -183,7 +193,12 @@ export default class OracleService {
     try {
       this._logger.info(`Submit Total  Random Round Data Points : ${rounds.length}  Starts from: ${rounds[0]} Ends At ${rounds[rounds.length - 1]}`)
       const configs = CONFIG.MODULES.ORACLE_RANDOMNESS.CONTRACTS.ALEPH_ZERO.RANDOMNESS_ORACLE
-      const api = await this._alephZeroProvider.getHttpApi()
+      let api: any
+      try {
+        api = await this._alephZeroProvider.getHttpApi()
+      } catch (error) {
+        throw new Error(`Error while connecting to node: ${JSON.stringify(error)}`)
+      }
       const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
 
       const req: any = []
@@ -282,7 +297,13 @@ export default class OracleService {
     try {
       this._logger.info(`Check if new round has to be added: ${chain}`)
       const configs = CONFIG.MODULES.ORACLE_RANDOMNESS.CONTRACTS.ALEPH_ZERO.RANDOMNESS_ORACLE
-      const api = await this._alephZeroProvider.getHttpApi()
+      let api: any
+      try {
+        api = await this._alephZeroProvider.getHttpApi()
+      } catch (error) {
+        throw new Error(`Error while connecting to node: ${JSON.stringify(error)}`)
+      }
+
       const contract = this._alephZeroProvider.getContractPromise(api, configs.ADDRESS, configs.ABI)
 
       const { error, data: latestRandomnessRound } = await this._externalProvider.getRandomness('0')
