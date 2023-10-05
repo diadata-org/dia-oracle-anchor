@@ -370,7 +370,7 @@ export default class OracleService {
       }
       const currentRound = Number(latestRandomnessRound.round)
 
-      let rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
+      let rounds = Array.from({ length: currentRound - lastRoundFromContract }, (_, index) => lastRoundFromContract + index + 1)
       this._logger.info(`lastRoundFromContract ${lastRoundFromContract}`)
       this._logger.info(`currentRound ${currentRound}`)
 
@@ -388,7 +388,7 @@ export default class OracleService {
       const bucketSize = 10
       while (rounds.length > 0) {
         rounds = rounds.sort((a, b) => b - a)
-        const bucket = rounds.splice(1, bucketSize)
+        const bucket = rounds.splice(0, bucketSize)
         this._logger.info(`Total Data point Updates Left ${rounds.length} Total Rounds left: ${rounds.length / bucketSize}`)
         try {
           await this.submitRandomRound(bucket)
