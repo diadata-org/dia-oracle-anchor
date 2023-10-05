@@ -377,8 +377,8 @@ export default class OracleService {
         this._initalRun = true
         if (rounds.length > max_historical) {
           this._logger.info(`Maximum historical rounds to update ${max_historical}`)
-
           rounds = rounds.splice(0, max_historical)
+          rounds = rounds.sort((a, b) => b - a)
         }
       }
       // divide rounds in buckets of 10
