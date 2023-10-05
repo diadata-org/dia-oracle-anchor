@@ -84,7 +84,10 @@ export default class OracleService {
 
       const currentPrice = Number(tokenPrice.Price)
 
-      if ((currentPrice - price) / price >= deviationPermille) {
+      const deviationPositive = price * (1 + deviationPermille / 1000)
+      const deviationNegative = price * (1 - deviationPermille / 1000)
+
+      if (currentPrice > deviationPositive || deviationPositive < deviationNegative) {
         return await this.submitAssetPrice(chain, tokenAddress)
       }
     } catch (err) {
@@ -185,6 +188,9 @@ export default class OracleService {
 
       const req: any = []
 
+      const maxRetries = 3 // Set the maximum number of retries
+      const retryDelayMs = 1000 // Set the delay between retries in milliseconds
+
       for (let index = 0; index < rounds.length; index++) {
         const round = rounds[index]
         const args = []
@@ -192,21 +198,28 @@ export default class OracleService {
         const roundsArr = []
 
         const params: any = {}
+        let retryCount = 0
 
-        const { error, data: randomResult } = await this._externalProvider.getRandomness(round.toString())
+        while (retryCount < maxRetries) {
+          const { error, data: randomResult } = await this._externalProvider.getRandomness(round.toString())
 
-        if (error) {
-          throw new Error(`Error while getting random round: ${JSON.stringify(error)}`)
+          if (!error) {
+            roundsArr.push(Number(randomResult.round))
+
+            params.randomness = randomResult.randomness
+            params.previousSignature = randomResult.previous_signature
+            params.signature = randomResult.signature
+            args.push(roundsArr)
+            args.push(params)
+            req.push(args)
+          } else {
+            retryCount++
+            this._logger.error(`Error while getting random round (Retry ${retryCount}): ${JSON.stringify(error)}`)
+            if (retryCount < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, retryDelayMs))
+            }
+          }
         }
-
-        roundsArr.push(Number(randomResult.round))
-
-        params.randomness = randomResult.randomness
-        params.previousSignature = randomResult.previous_signature
-        params.signature = randomResult.signature
-        args.push(roundsArr)
-        args.push(params)
-        req.push(args)
       }
 
       const result = await this._alephZeroProvider.contractTx(
@@ -264,6 +277,8 @@ export default class OracleService {
   }
 
   public async checkIfNeedToSubmitRandomnessUpdate(chain: string) {
+    const MAX_HISTORICAL_ROUND = process.env.MAX_HISTORICAL_ROUND
+
     try {
       this._logger.info(`Check if new round has to be added: ${chain}`)
       const configs = CONFIG.MODULES.ORACLE_RANDOMNESS.CONTRACTS.ALEPH_ZERO.RANDOMNESS_ORACLE
@@ -283,6 +298,11 @@ export default class OracleService {
         {},
         []
       )
+      let max_historical = 0
+
+      if (MAX_HISTORICAL_ROUND) {
+        max_historical = Number(MAX_HISTORICAL_ROUND)
+      }
 
       const lastRoundFromContract = Number(String((lastRound.output?.toJSON() as any)?.ok ?? '0'))
       // For newly deployed contracts
@@ -295,13 +315,20 @@ export default class OracleService {
       // for existing contracts
       const currentRound = Number(latestRandomnessRound.round)
 
-      const rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
+      let rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
 
+      if (max_historical !== 0) {
+        if (rounds.length > max_historical) {
+          this._logger.info(`Maximum historical rounds to update ${max_historical}`)
+
+          rounds = rounds.splice(0, max_historical)
+        }
+      }
       // divide rounds in buckets of 10
       const bucketSize = 10
       while (rounds.length > 0) {
         const bucket = rounds.splice(0, bucketSize)
-        this._logger.info(`Total Data point Updates ${rounds.length} Total Rounds left: ${rounds.length / bucketSize}`)
+        this._logger.info(`Total Data point Updates Left ${rounds.length} Total Rounds left: ${rounds.length / bucketSize}`)
         try {
           await this.submitRandomRound(bucket)
         } catch (err) {
