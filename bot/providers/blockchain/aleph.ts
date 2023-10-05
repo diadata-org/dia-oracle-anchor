@@ -21,7 +21,8 @@ export default class AlephZeroProvider {
 
   public async getHttpApi() {
     const provider = this.getHttpProvider()
-    return await ApiPromise.create({ provider })
+    const api = new ApiPromise({ provider })
+    return api.isReadyOrError
   }
 
   public getContractPromise(api: ApiPromise, address: string, abi: any) {
