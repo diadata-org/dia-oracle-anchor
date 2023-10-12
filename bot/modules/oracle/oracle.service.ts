@@ -17,7 +17,7 @@ export default class OracleService {
   @inject(ExternalProvider.name) private _externalProvider: ExternalProvider
   @inject(NotificationProvider.name) private _notificationProvider: NotificationProvider
   @inject(OracleRepository.name) private _oracleRepository: OracleRepository
-
+  private _initalRun: boolean
   constructor(
     @inject(LLogger.name) logger: LLogger, //
     @inject(AlephZeroProvider.name) alephZeroProvider: AlephZeroProvider,
@@ -30,6 +30,7 @@ export default class OracleService {
     this._externalProvider = externalProvider
     this._notificationProvider = notificationProvider
     this._oracleRepository = oracleRepository
+    this._initalRun = false
   }
 
   public async getTransactionLogs(params: PaginateRequest) {
@@ -50,7 +51,7 @@ export default class OracleService {
   public async checkIfNeedToSubmitAsset(chain: string, tokenAddress: string) {
     try {
       this._logger.info(`Check deviation permille asset price: ${chain}-${tokenAddress}`)
-      const deviationPermille = Number(CONFIG.MODULES.ORACLE.DEVIATION_PERMILLE) / 100
+      const deviationPermille = Number(CONFIG.MODULES.ORACLE.DEVIATION_PERMILLE)
       const configs = CONFIG.MODULES.ORACLE.CONTRACTS.ALEPH_ZERO.ASSET_PRICE_ANCHOR
       let api: any
       try {
@@ -92,7 +93,13 @@ export default class OracleService {
       const deviationPositive = price * (1 + deviationPermille / 1000)
       const deviationNegative = price * (1 - deviationPermille / 1000)
 
+      this._logger.info(
+        `Asset ${chain}-${tokenAddress}, deviationPositive ${deviationPositive} deviationNegative ${deviationNegative} currentPrice ${currentPrice}  `
+      )
+
       if (currentPrice > deviationPositive || currentPrice < deviationNegative) {
+        this._logger.info(`Deviation reached Submitting asset price : ${chain}-${tokenAddress}`)
+
         return await this.submitAssetPrice(chain, tokenAddress)
       }
     } catch (err) {
@@ -136,16 +143,33 @@ export default class OracleService {
         throw new Error(`Error while getting asset price: ${JSON.stringify(error)}`)
       }
 
-      const result = await this._alephZeroProvider.contractTx(
-        api,
-        this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
-        contract,
-        'OracleSetters::setPrice',
-        {},
-        [`${tokenPrice.Symbol}/USD`, this._alephZeroProvider.parseFromFloatToInt(String(tokenPrice.Price), PRECISION_DECIMALS)]
-      )
+      let retryCount = 0
+      let result: any
+      const maxRetries = 3 // Set the maximum number of retries
+
+      while (retryCount < maxRetries) {
+        try {
+          result = await this._alephZeroProvider.contractTx(
+            api,
+            this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
+            contract,
+            'OracleSetters::setPrice',
+            {},
+            [`${tokenPrice.Symbol}/USD`, this._alephZeroProvider.parseFromFloatToInt(String(tokenPrice.Price), PRECISION_DECIMALS)]
+          )
+
+          break // Exit the loop on success
+        } catch (error) {
+          this._logger.error(`Error in contractTx  (Retry ${retryCount}): ${JSON.stringify(error)}`)
+          retryCount++
+          if (retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          }
+        }
+      }
 
       const txnHash = result.result?.toHex()
+      this._logger.info(`Transaction done : ${String(txnHash)} for asset ${chain}-${tokenAddress}`)
 
       const res = await this._alephZeroProvider.waitTx(api, txnHash, result.currentBlock.block.header.number.toNumber())
       if (process.env.DATABASE_URL) {
@@ -227,6 +251,7 @@ export default class OracleService {
             args.push(roundsArr)
             args.push(params)
             req.push(args)
+            break
           } else {
             retryCount++
             this._logger.error(`Error while getting random round (Retry ${retryCount}): ${JSON.stringify(error)}`)
@@ -237,14 +262,30 @@ export default class OracleService {
         }
       }
 
-      const result = await this._alephZeroProvider.contractTx(
-        api,
-        this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
-        contract,
-        'RandomOracleSetter::set_random_values',
-        {},
-        [req]
-      )
+      let retryCount = 0
+      let result: any
+
+      while (retryCount < maxRetries) {
+        try {
+          result = await this._alephZeroProvider.contractTx(
+            api,
+            this._alephZeroProvider.getAccountKeyring(CONFIG.MODULES.ORACLE.UPDATER_PRIVATE_KEY),
+            contract,
+            'RandomOracleSetter::set_random_values',
+            {},
+            [req]
+          )
+
+          break // Exit the loop on success
+        } catch (error) {
+          this._logger.error(`Error in contractTx  (Retry ${retryCount}): ${JSON.stringify(error)}`)
+          // Increment the retry count
+          retryCount++
+          if (retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          }
+        }
+      }
 
       const txnHash = result.result?.toHex()
 
@@ -333,21 +374,26 @@ export default class OracleService {
         await this.submitRandomRound(rounds)
         return
       }
-      // for existing contracts
       const currentRound = Number(latestRandomnessRound.round)
 
-      let rounds = Array.from({ length: currentRound - lastRoundFromContract + 1 }, (_, index) => lastRoundFromContract + index)
+      let rounds = Array.from({ length: currentRound - lastRoundFromContract }, (_, index) => lastRoundFromContract + index + 1)
+      this._logger.info(`lastRoundFromContract ${lastRoundFromContract}`)
+      this._logger.info(`currentRound ${currentRound}`)
 
-      if (max_historical !== 0) {
+      this._logger.info(`diff ${currentRound - lastRoundFromContract}`)
+
+      if (max_historical !== 0 && !this._initalRun) {
+        this._initalRun = true
         if (rounds.length > max_historical) {
           this._logger.info(`Maximum historical rounds to update ${max_historical}`)
-
+          rounds = rounds.sort((a, b) => b - a)
           rounds = rounds.splice(0, max_historical)
         }
       }
       // divide rounds in buckets of 10
       const bucketSize = 10
       while (rounds.length > 0) {
+        rounds = rounds.sort((a, b) => b - a)
         const bucket = rounds.splice(0, bucketSize)
         this._logger.info(`Total Data point Updates Left ${rounds.length} Total Rounds left: ${rounds.length / bucketSize}`)
         try {

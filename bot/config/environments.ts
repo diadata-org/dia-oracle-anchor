@@ -75,7 +75,7 @@ export const ENV_CONFIG: IConfigs = {
         API_ROOT: 'https://api.diadata.org'
       },
       DRAND: {
-        API_ROOT: 'https://drand.cloudflare.com'
+        API_ROOT: String(process.env.DRAND_API || 'https://drand.cloudflare.com')
       }
     }
   }
