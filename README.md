@@ -42,8 +42,8 @@ Deployed oracles can be accessed at these addresses:
 
 | Network | Oracle Name | Address | Metadata JSON |
 | ------- | ----------- | ------- | ------------- |
-| Testnet | Asset Price Oracle | [`5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U`](https://contracts-ui.substrate.io/contract/5FmmcSEPiT4sZniwBMs6G89128GTTfPtaWK3jEJPJ9Z77v7U) | [Price Oracle Metadata](example/dia_oracle.json) |
-| Testnet | Randomness Oracle | [`5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg`](https://contracts-ui.substrate.io/contract/5Grpo53UbArhM6uJNCrJTnyVy3BXYuxk5M4TNAwDnAgmrrjg) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
+| Testnet | Asset Price Oracle | [`5F5z8pZoLgkGapEksFWc2h7ZxH2vdh1A9agnhXvfdCeAfS9b`](https://contracts-ui.substrate.io/contract/5F5z8pZoLgkGapEksFWc2h7ZxH2vdh1A9agnhXvfdCeAfS9b) | [Price Oracle Metadata](example/dia_oracle.json) |
+| Testnet | Randomness Oracle | [`5GqtxPqGLX5BvionPEFtPg9v3dZcDFpSqB1hYaibgQwJyhgH`](https://contracts-ui.substrate.io/contract/5GqtxPqGLX5BvionPEFtPg9v3dZcDFpSqB1hYaibgQwJyhgH) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
 | Mainnet | Asset Price Oracle | [`5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG`](https://contracts-ui.substrate.io/contract/5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG) | [Price Oracle Metadata](example/dia_oracle.json) |
 | Mainnet | Randomness Oracle | [`5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi`](https://contracts-ui.substrate.io/contract/5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
 
