@@ -21,7 +21,6 @@ The deployed DIA oracles support the following assets
 | [DOT](https://www.diadata.org/app/price/asset/Polkadot/0x0000000000000000000000000000000000000000/) | `DOT/USD` | MAIR120 | 2% |
 | [SOL](https://www.diadata.org/app/price/asset/Solana/0x0000000000000000000000000000000000000000/) | `SOL/USD` | MAIR120 | 2% |
 | [AVAX](https://www.diadata.org/app/price/asset/Avalanche/0x0000000000000000000000000000000000000000/) | `AVAX/USD` | MAIR120 | 2% |
-| [DOT](https://www.diadata.org/app/price/asset/Polkadot/0x0000000000000000000000000000000000000000/) | `DOT/USD` | MAIR120 | 2% |
 | [EUR](https://www.diadata.org/app/price/asset/Fiat/978/) | `EUR/USD` | MAIR120 | 2% |
 | [BNB](https://www.diadata.org/app/price/asset/BinanceSmartChain/0x0000000000000000000000000000000000000000/) | `BNB/USD` | MAIR120 | 2% |
 | [DOGE](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `DOGE/USD` | MAIR120 | 2% |
