@@ -10,10 +10,4 @@ use ink::prelude::vec::Vec;
 pub struct RandomData {
     /// A vector of bytes representing the randomness data.
     pub randomness: Vec<u8>,
-
-    /// A vector of bytes representing the signature data.
-    pub signature: Vec<u8>,
-
-    /// A vector of bytes representing the previous round's signature data.
-    pub previous_signature: Vec<u8>,
 }

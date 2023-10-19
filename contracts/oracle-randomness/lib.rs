@@ -230,13 +230,9 @@ pub mod oracle_anchor {
             let mut contract = RandomnessOracle::new();
 
             let randomness = vec![1, 2, 3];
-            let signature = vec![4, 5, 6];
-            let previous_signature = vec![4, 5, 6];
 
             let data = RandomData {
-                randomness,
-                signature,
-                previous_signature,
+                randomness
             };
 
             contract.set_random_value(1, data.clone());
@@ -258,12 +254,8 @@ pub mod oracle_anchor {
             let mut contract = RandomnessOracle::new();
 
             let randomness = vec![1, 2, 3];
-            let signature = vec![4, 5, 6];
-            let previous_signature = vec![4, 5, 6];
             let data = RandomData {
-                randomness,
-                signature,
-                previous_signature,
+                randomness
             };
 
             contract.set_random_value(1, data.clone());
@@ -281,33 +273,25 @@ pub mod oracle_anchor {
                 (
                     1,
                     RandomData {
-                        randomness: vec![2, 2, 3],
-                        signature: vec![1, 2, 3],
-                        previous_signature: vec![1, 2, 3],
+                        randomness: vec![2, 2, 3]
                     },
                 ),
                 (
                     2,
                     RandomData {
-                        randomness: vec![1, 2, 3],
-                        signature: vec![4, 5, 6],
-                        previous_signature: vec![1, 2, 3],
+                        randomness: vec![1, 2, 3]
                     },
                 ),
                 (
                     4,
                     RandomData {
-                        randomness: vec![1, 2, 3],
-                        signature: vec![4, 5, 6],
-                        previous_signature: vec![1, 2, 3],
+                        randomness: vec![1, 2, 3]
                     },
                 ),
                 (
                     3,
                     RandomData {
-                        randomness: vec![1, 2, 3],
-                        signature: vec![4, 5, 6],
-                        previous_signature: vec![1, 2, 3],
+                        randomness: vec![1, 2, 3]
                     },
                 ),
             ];
@@ -321,9 +305,7 @@ pub mod oracle_anchor {
             assert_eq!(
                 result,
                 Some(RandomData {
-                    randomness: vec![1, 2, 3],
-                    signature: vec![4, 5, 6],
-                    previous_signature: vec![1, 2, 3]
+                    randomness: vec![1, 2, 3]
                 })
             );
         }
@@ -335,12 +317,8 @@ pub mod oracle_anchor {
             contract.set_updater(caller);
 
             let randomness = vec![1, 2, 3];
-            let signature = vec![4, 5, 6];
-            let previous_signature = vec![4, 5, 6];
             let data = RandomData {
-                randomness,
-                signature,
-                previous_signature,
+                randomness
             };
 
             contract.set_random_value(1, data);
@@ -354,12 +332,9 @@ pub mod oracle_anchor {
             let account: AccountId = AccountId::from([0x2; 32]);
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(account);
             let randomness = vec![1, 2, 3];
-            let signature = vec![4, 5, 6];
-            let previous_signature = vec![4, 5, 6];
+
             let data = RandomData {
-                randomness,
-                signature,
-                previous_signature,
+                randomness
             };
 
             random_data_storage.set_random_value(1, data);
@@ -620,8 +595,6 @@ pub mod oracle_anchor {
             let constructor = RandomnessOracleRef::new();
 
             let randomness = vec![1, 2, 3];
-            let signature = vec![4, 5, 6];
-            let previous_signature = vec![4, 5, 6];
 
             let contract_acc_id = client
                 .instantiate(
@@ -635,9 +608,7 @@ pub mod oracle_anchor {
                 .expect("instantiate failed")
                 .account_id;
             let r_data = RandomData {
-                randomness,
-                signature,
-                previous_signature,
+                randomness
             };
 
             let set_random_value = build_message::<RandomnessOracleRef>(contract_acc_id)

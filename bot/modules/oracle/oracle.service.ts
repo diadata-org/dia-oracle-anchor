@@ -244,10 +244,7 @@ export default class OracleService {
 
           if (!error) {
             roundsArr.push(Number(randomResult.round))
-
-            params.randomness = randomResult.randomness
-            params.previousSignature = randomResult.previous_signature
-            params.signature = randomResult.signature
+            params.randomness = api.createType('Bytes', randomResult.randomness)
             args.push(roundsArr)
             args.push(params)
             req.push(args)
