@@ -244,7 +244,7 @@ export default class OracleService {
 
           if (!error) {
             roundsArr.push(Number(randomResult.round))
-            params.randomness = api.createType('Bytes', randomResult.randomness)
+            params.randomness = Array.from(hexToU8a(randomResult.randomness))
             args.push(roundsArr)
             args.push(params)
             req.push(args)
