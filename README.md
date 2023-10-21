@@ -26,7 +26,7 @@ The deployed DIA oracles support the following assets
 | [DOGE](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `DOGE/USD` | MAIR120 | 2% |
 | [MATIC](https://www.diadata.org/app/price/asset/Polygon/0x0000000000000000000000000000000000001010/) | `MATIC/USD` | MAIR120 | 2% |
 | [DAI](https://www.diadata.org/app/price/asset/Ethereum/0x6B175474E89094C44Da98b954EedeAC495271d0F/) | `DAI/USD` | MAIR120 | 2% |
-| [AZERO](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `AZERO/USD` | MAIR120 | 2% |
+| [AZERO](https://www.diadata.org/app/price/asset/AlephZero/0x0000000000000000000000000000000000000000/) | `AZERO/USD` | MAIR120 | 2% |
 
 The MAIR120 methodology is defined [in detail in the DIA documentation](https://docs.diadata.org/products/token-price-feeds/exchangeprices/mair-moving-average-with-interquartile-range-filter).
 
