@@ -14,19 +14,19 @@ The deployed DIA oracles support the following assets
 
 | Asset | Query String | Methodology | Update Threshold |
 | ----- | ------------ | ----------- | ---------------- |
-| [Bitcoin](https://www.diadata.org/app/price/asset/Bitcoin/0x0000000000000000000000000000000000000000/) | `BTC/USD` | MAIR120 | 2% |
-| [Ether](https://www.diadata.org/app/price/asset/Ethereum/0x0000000000000000000000000000000000000000/) | `ETH/USD` | MAIR120 | 2% |
-| [USDC](https://www.diadata.org/app/price/asset/Ethereum/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/) | `USDC/USD` | MAIR120 | 2% |
-| [USDT](https://www.diadata.org/app/price/asset/Ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7/) | `USDT/USD` | MAIR120 | 2% |
-| [DOT](https://www.diadata.org/app/price/asset/Polkadot/0x0000000000000000000000000000000000000000/) | `DOT/USD` | MAIR120 | 2% |
-| [SOL](https://www.diadata.org/app/price/asset/Solana/0x0000000000000000000000000000000000000000/) | `SOL/USD` | MAIR120 | 2% |
-| [AVAX](https://www.diadata.org/app/price/asset/Avalanche/0x0000000000000000000000000000000000000000/) | `AVAX/USD` | MAIR120 | 2% |
-| [EUR](https://www.diadata.org/app/price/asset/Fiat/978/) | `EUR/USD` | MAIR120 | 2% |
-| [BNB](https://www.diadata.org/app/price/asset/BinanceSmartChain/0x0000000000000000000000000000000000000000/) | `BNB/USD` | MAIR120 | 2% |
-| [DOGE](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `DOGE/USD` | MAIR120 | 2% |
-| [MATIC](https://www.diadata.org/app/price/asset/Polygon/0x0000000000000000000000000000000000001010/) | `MATIC/USD` | MAIR120 | 2% |
-| [DAI](https://www.diadata.org/app/price/asset/Ethereum/0x6B175474E89094C44Da98b954EedeAC495271d0F/) | `DAI/USD` | MAIR120 | 2% |
-| [AZERO](https://www.diadata.org/app/price/asset/AlephZero/0x0000000000000000000000000000000000000000/) | `AZERO/USD` | MAIR120 | 2% |
+| [Bitcoin](https://www.diadata.org/app/price/asset/Bitcoin/0x0000000000000000000000000000000000000000/) | `BTC/USD` | MAIR120 | 0.1% |
+| [Ether](https://www.diadata.org/app/price/asset/Ethereum/0x0000000000000000000000000000000000000000/) | `ETH/USD` | MAIR120 | 0.1% |
+| [USDC](https://www.diadata.org/app/price/asset/Ethereum/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/) | `USDC/USD` | MAIR120 | 0.1% |
+| [USDT](https://www.diadata.org/app/price/asset/Ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7/) | `USDT/USD` | MAIR120 | 0.1% |
+| [DOT](https://www.diadata.org/app/price/asset/Polkadot/0x0000000000000000000000000000000000000000/) | `DOT/USD` | MAIR120 | 0.1% |
+| [SOL](https://www.diadata.org/app/price/asset/Solana/0x0000000000000000000000000000000000000000/) | `SOL/USD` | MAIR120 | 0.1% |
+| [AVAX](https://www.diadata.org/app/price/asset/Avalanche/0x0000000000000000000000000000000000000000/) | `AVAX/USD` | MAIR120 | 0.1% |
+| [EUR](https://www.diadata.org/app/price/asset/Fiat/978/) | `EUR/USD` | MAIR120 | 0.1% |
+| [BNB](https://www.diadata.org/app/price/asset/BinanceSmartChain/0x0000000000000000000000000000000000000000/) | `BNB/USD` | MAIR120 | 0.1% |
+| [DOGE](https://www.diadata.org/app/price/asset/Dogechain/0x0000000000000000000000000000000000000000/) | `DOGE/USD` | MAIR120 | 0.1% |
+| [MATIC](https://www.diadata.org/app/price/asset/Polygon/0x0000000000000000000000000000000000001010/) | `MATIC/USD` | MAIR120 | 0.1% |
+| [DAI](https://www.diadata.org/app/price/asset/Ethereum/0x6B175474E89094C44Da98b954EedeAC495271d0F/) | `DAI/USD` | MAIR120 | 0.1% |
+| [AZERO](https://www.diadata.org/app/price/asset/AlephZero/0x0000000000000000000000000000000000000000/) | `AZERO/USD` | MAIR120 | 0.1% |
 
 The MAIR120 methodology is defined [in detail in the DIA documentation](https://docs.diadata.org/products/token-price-feeds/exchangeprices/mair-moving-average-with-interquartile-range-filter).
 
