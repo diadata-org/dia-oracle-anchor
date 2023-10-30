@@ -1,6 +1,6 @@
 export const RANDOM_ORACLE_ANCHOR_ABI = {
   source: {
-    hash: '0x8fb2ec74c5e5eb76b8070ff12ac0c20924a7c63cabf509b4b4f67f7b90882309',
+    hash: '0x33f08384805b1bc8adb805b5fe77b64567c6917a3454763b7060cd67a7f9fe0a',
     language: 'ink! 4.3.0',
     compiler: 'rustc 1.71.1',
     build_info: {
@@ -14,7 +14,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
     }
   },
   contract: {
-    name: 'dia-random-oracle',
+    name: 'dia-randomness-oracle',
     version: '0.1.0',
     authors: ['nnn-gif nitin.gurbani@diadata.org']
   },
@@ -378,24 +378,6 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
                                         }
                                       },
                                       name: 'randomness'
-                                    },
-                                    {
-                                      layout: {
-                                        leaf: {
-                                          key: '0xb1895189',
-                                          ty: 3
-                                        }
-                                      },
-                                      name: 'signature'
-                                    },
-                                    {
-                                      layout: {
-                                        leaf: {
-                                          key: '0xb1895189',
-                                          ty: 3
-                                        }
-                                      },
-                                      name: 'previous_signature'
                                     }
                                   ],
                                   name: 'RandomData'
@@ -425,7 +407,7 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
               name: 'data'
             }
           ],
-          name: 'RandomDataStorage'
+          name: 'RandomnessOracle'
         }
       },
       root_key: '0x00000000'
@@ -615,21 +597,11 @@ export const RANDOM_ORACLE_ANCHOR_ABI = {
                 name: 'randomness',
                 type: 3,
                 typeName: 'Vec<u8>'
-              },
-              {
-                name: 'signature',
-                type: 3,
-                typeName: 'Vec<u8>'
-              },
-              {
-                name: 'previous_signature',
-                type: 3,
-                typeName: 'Vec<u8>'
               }
             ]
           }
         },
-        path: ['dia_oracle_random_type', 'RandomData']
+        path: ['dia_oracle_randomness_type', 'RandomData']
       }
     },
     {

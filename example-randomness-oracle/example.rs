@@ -42,13 +42,10 @@ mod randomoracleexample {
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             //init Oracle contract
             let randomness = vec![1, 2, 3];
-            let signature = vec![4, 5, 6];
-            let previous_signature = vec![4, 5, 6];
+ 
 
             let r_data = RandomData {
                 randomness,
-                signature,
-                previous_signature,
             };
 
 

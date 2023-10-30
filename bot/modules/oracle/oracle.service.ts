@@ -4,6 +4,7 @@ import AlephZeroProvider from '@providers/blockchain/aleph'
 import ExternalProvider from '@providers/external'
 import NotificationProvider from '@providers/notification'
 import { inject, injectable } from 'inversify'
+import { hexToU8a } from '@polkadot/util'
 import moment from 'moment'
 import OracleRepository from './oracle.repository'
 import { PRECISION_DECIMALS, TransactionEvent, RandomOracleEvent } from '@config/constants'
@@ -244,10 +245,7 @@ export default class OracleService {
 
           if (!error) {
             roundsArr.push(Number(randomResult.round))
-
-            params.randomness = randomResult.randomness
-            params.previousSignature = randomResult.previous_signature
-            params.signature = randomResult.signature
+            params.randomness = Array.from(hexToU8a(randomResult.randomness))
             args.push(roundsArr)
             args.push(params)
             req.push(args)
