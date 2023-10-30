@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0xc216a2e186fb8e635a47a6a1f6cd2d1945a6a9c2dcffe14f0ce30eb1dc5de35b",
+    "hash": "0x33f08384805b1bc8adb805b5fe77b64567c6917a3454763b7060cd67a7f9fe0a",
     "language": "ink! 4.3.0",
     "compiler": "rustc 1.71.1",
     "build_info": {
@@ -454,24 +454,6 @@
                                         }
                                       },
                                       "name": "randomness"
-                                    },
-                                    {
-                                      "layout": {
-                                        "leaf": {
-                                          "key": "0xb1895189",
-                                          "ty": 3
-                                        }
-                                      },
-                                      "name": "signature"
-                                    },
-                                    {
-                                      "layout": {
-                                        "leaf": {
-                                          "key": "0xb1895189",
-                                          "ty": 3
-                                        }
-                                      },
-                                      "name": "previous_signature"
                                     }
                                   ],
                                   "name": "RandomData"
@@ -704,16 +686,6 @@
             "fields": [
               {
                 "name": "randomness",
-                "type": 3,
-                "typeName": "Vec<u8>"
-              },
-              {
-                "name": "signature",
-                "type": 3,
-                "typeName": "Vec<u8>"
-              },
-              {
-                "name": "previous_signature",
                 "type": 3,
                 "typeName": "Vec<u8>"
               }
