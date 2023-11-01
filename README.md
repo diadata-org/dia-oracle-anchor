@@ -44,7 +44,7 @@ Deployed oracles can be accessed at these addresses:
 | Testnet | Asset Price Oracle | [`5F5z8pZoLgkGapEksFWc2h7ZxH2vdh1A9agnhXvfdCeAfS9b`](https://contracts-ui.substrate.io/contract/5F5z8pZoLgkGapEksFWc2h7ZxH2vdh1A9agnhXvfdCeAfS9b) | [Price Oracle Metadata](example/dia_oracle.json) |
 | Testnet | Randomness Oracle | [`5CSQdMyKCxtoeVsBC8xbufeapux3YDV74eYXcHV4UKUu1NeF`](https://contracts-ui.substrate.io/contract/5CSQdMyKCxtoeVsBC8xbufeapux3YDV74eYXcHV4UKUu1NeF) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
 | Mainnet | Asset Price Oracle | [`5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG`](https://contracts-ui.substrate.io/contract/5F7wPCMXX65RmL8oiuAFNKu2ydhvgcissDZ3NWZ5X85n2WPG) | [Price Oracle Metadata](example/dia_oracle.json) |
-| Mainnet | Randomness Oracle | [`5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi`](https://contracts-ui.substrate.io/contract/5FhA9YoxgT4ydFh83Dy1Ek1Cqkog9cp9JG8LP2BxFn4ECssi) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
+| Mainnet | Randomness Oracle | [`5HSkrQwqJtmdWL99ocRf1nMwJF9k54uHcQCU5CCctA3zf3q7`](https://contracts-ui.substrate.io/contract/5HSkrQwqJtmdWL99ocRf1nMwJF9k54uHcQCU5CCctA3zf3q7) | [Randomness Oracle Metadata](example-randomness-oracle/dia_randomness_oracle.json) |
 
 ## Asset price oracle
 To facilitate development, the DIA oracles are deployed on Aleph Zero mainnet and testnet.
@@ -92,7 +92,6 @@ The asset price is stored with 18 decimals by default.
 
 ## Randomness oracle
 The randomness oracle is available on Aleph Zero mainnet and testnet and can be used to retrieve randomness from [drand.love](https://drand.love).
-The randomness oracle will be updated on mainnet on Nov 1st 2023 to the new format that is already live in testnet.
 
 ### Oracle contract
 Randomness is produced in numbered rounds. Each round's randomness can be retirved individually and the latest round can be queried from the contract directly.
